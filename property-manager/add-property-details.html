@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Details | Rento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .step-container {
+            min-height: 80vh;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .step-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .step-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+
+        .step-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-gray);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 100px;
+            left: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .back-button:hover {
+            color: var(--primary-color);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.half {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: var(--primary-color);
+        }
+
+        .form-input {
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(8, 150, 126, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-select {
+            appearance: none;
+            background: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>') no-repeat right 12px center;
+            background-size: 12px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .checkbox {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .checkbox:checked {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .viewing-fee-section {
+            display: none;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        .viewing-fee-section.show {
+            display: block;
+        }
+
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .amenity-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .continue-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .continue-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(8, 150, 126, 0.3);
+        }
+
+        .continue-button:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .form-group.half {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .step-title {
+                font-size: 1.5rem;
+            }
+
+            .back-button {
+                top: 80px;
+                left: 16px;
+            }
+
+            .amenities-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            
+            <div class="user-menu">
+                <div style="background: var(--primary-color); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="toggleDropdown()" id="userInitials">PM</div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="profile.html" class="dropdown-item">Profile</a>
+                    <a href="#" class="dropdown-item" onclick="openAccountSwitcher()">Switch Account</a>
+                    <a href="#" class="dropdown-item logout-btn" onclick="logout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <a href="add-property-type.html" class="back-button">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd"/>
+        </svg>
+        Back
+    </a>
+
+    <div class="step-container">
+        <div class="step-header">
+            <h1 class="step-title">Tell us about your property</h1>
+            <p class="step-subtitle">Fill in the details to help tenants find your property</p>
+        </div>
+
+        <form class="form-grid" id="propertyDetailsForm">
+            <!-- Property Name -->
+            <div class="form-group">
+                <label for="propertyName">Property Name <span class="required">*</span></label>
+                <input type="text" id="propertyName" class="form-input" placeholder="e.g., Sunset Apartments" required>
+            </div>
+
+            <!-- Location -->
+            <div class="form-group">
+                <label for="location">Location <span class="required">*</span></label>
+                <input type="text" id="location" class="form-input" placeholder="e.g., 123 Main Street, City, State" required>
+            </div>
+
+            <!-- Brief Description -->
+            <div class="form-group">
+                <label for="description">Brief Description <span class="required">*</span></label>
+                <textarea id="description" class="form-input form-textarea" placeholder="Describe your property, what makes it special..." required></textarea>
+            </div>
+
+            <!-- Amenities -->
+            <div class="form-group">
+                <label>Amenities</label>
+                <div class="amenities-grid" id="amenitiesGrid">
+                    <!-- Amenities will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Property Viewing Fees -->
+            <div class="form-group">
+                <label>Property Viewing</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="hasViewingFee" class="checkbox" onchange="toggleViewingFee()">
+                    <label for="hasViewingFee">This property charges a viewing fee</label>
+                </div>
+                <div class="viewing-fee-section" id="viewingFeeSection">
+                    <label for="viewingFeeAmount">Viewing Fee Amount ($) <span class="required">*</span></label>
+                    <input type="number" id="viewingFeeAmount" class="form-input" placeholder="0.00" min="0" step="0.01">
+                </div>
+            </div>
+
+            <!-- Lease Type and Purpose -->
+            <div class="form-group half">
+                <div>
+                    <label for="leaseType">Lease Type <span class="required">*</span></label>
+                    <select id="leaseType" class="form-input form-select" required>
+                        <option value="">Select lease type</option>
+                        <option value="short_term">Short Term (< 6 months)</option>
+                        <option value="medium_term">Medium Term (6-12 months)</option>
+                        <option value="long_term">Long Term (1+ years)</option>
+                        <option value="month_to_month">Month-to-Month</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="propertyPurpose">Property Purpose <span class="required">*</span></label>
+                    <select id="propertyPurpose" class="form-input form-select" required>
+                        <option value="">Select purpose</option>
+                        <option value="rent">For Rent</option>
+                        <option value="airbnb">Airbnb</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Monthly Rent -->
+            <div class="form-group">
+                <label for="monthlyRent">Monthly Rent ($) <span class="required">*</span></label>
+                <input type="number" id="monthlyRent" class="form-input" placeholder="0.00" min="0" step="0.01" required>
+            </div>
+
+            <button type="submit" class="continue-button">
+                Continue to Photos
+            </button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/account-switcher.js"></script>
+    <script>
+        let currentUser = null;
+        let selectedPropertyType = null;
+
+        const amenities = [
+            'WiFi', 'Parking', 'Air Conditioning', 'Heating', 'Laundry', 'Dishwasher',
+            'Swimming Pool', 'Gym', 'Balcony', 'Garden', 'Pet Friendly', 'Security System',
+            'Furnished', 'Kitchen', 'Elevator', 'Storage'
+        ];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = AuthManager.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = '../auth/login.html';
+                return;
+            }
+
+            if (currentUser.role !== 'property_manager') {
+                window.location.href = '../auth/login.html';
+                return;
+            }
+
+            // Check if property type was selected
+            selectedPropertyType = sessionStorage.getItem('selectedPropertyType');
+            if (!selectedPropertyType) {
+                window.location.href = 'add-property-type.html';
+                return;
+            }
+
+            // Update user initials
+            if (currentUser.name) {
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('userInitials').textContent = initials;
+            }
+
+            renderAmenities();
+        });
+
+        function renderAmenities() {
+            const grid = document.getElementById('amenitiesGrid');
+            grid.innerHTML = '';
+
+            amenities.forEach(amenity => {
+                const option = document.createElement('div');
+                option.className = 'amenity-option';
+
+                const id = `amenity-${amenity.toLowerCase().replace(/\s+/g, '-')}`;
+                option.innerHTML = `
+                    <input type="checkbox" id="${id}" class="checkbox" value="${amenity}">
+                    <label for="${id}">${amenity}</label>
+                `;
+
+                grid.appendChild(option);
+            });
+        }
+
+        function toggleViewingFee() {
+            const checkbox = document.getElementById('hasViewingFee');
+            const section = document.getElementById('viewingFeeSection');
+            const amountInput = document.getElementById('viewingFeeAmount');
+
+            if (checkbox.checked) {
+                section.classList.add('show');
+                amountInput.setAttribute('required', 'required');
+            } else {
+                section.classList.remove('show');
+                amountInput.removeAttribute('required');
+                amountInput.value = '';
+            }
+        }
+
+        function getSelectedAmenities() {
+            const checkboxes = document.querySelectorAll('#amenitiesGrid input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        // Form submission
+        document.getElementById('propertyDetailsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('propertyName').value,
+                location: document.getElementById('location').value,
+                description: document.getElementById('description').value,
+                amenities: getSelectedAmenities(),
+                hasViewingFee: document.getElementById('hasViewingFee').checked,
+                viewingFeeAmount: document.getElementById('hasViewingFee').checked ? 
+                    parseFloat(document.getElementById('viewingFeeAmount').value) || 0 : 0,
+                leaseType: document.getElementById('leaseType').value,
+                propertyPurpose: document.getElementById('propertyPurpose').value,
+                monthlyRent: parseFloat(document.getElementById('monthlyRent').value)
+            };
+
+            // Validation
+            if (!formData.name || !formData.location || !formData.description || 
+                !formData.leaseType || !formData.propertyPurpose || !formData.monthlyRent) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (formData.hasViewingFee && formData.viewingFeeAmount <= 0) {
+                alert('Please enter a valid viewing fee amount');
+                return;
+            }
+
+            // Store form data
+            sessionStorage.setItem('propertyDetails', JSON.stringify(formData));
+            
+            // Navigate to step 3
+            window.location.href = 'add-property-photos.html';
+        });
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        async function logout() {
+            await AuthManager.signOut();
+        }
+
+        function openAccountSwitcher() {
+            if (window.accountSwitcher) {
+                window.accountSwitcher.openModal();
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

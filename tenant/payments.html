@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments - Rento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .payment-item {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .payment-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+        
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .payment-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+        
+        .payment-date {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+        }
+        
+        .payment-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-align: right;
+        }
+        
+        .payment-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #d1fae5;
+            color: #065f46;
+            margin-top: 4px;
+        }
+        
+        .payment-details {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+        
+        .download-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .download-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(8, 150, 126, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .fab:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+        
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin-bottom: 24px;
+            transition: color 0.2s ease;
+        }
+        
+        .back-button:hover {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            
+            <ul class="nav-links">
+                <li><a href="home.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="payments.html" class="active">Payments</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            
+            <div class="user-menu">
+                <div style="background: var(--primary-color); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="toggleDropdown()" id="userInitials">JD</div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="profile.html" class="dropdown-item">Profile</a>
+                    <a href="#" class="dropdown-item">Switch Account</a>
+                    <a href="#" class="dropdown-item logout-btn" onclick="logout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <a href="dashboard.html" class="back-button">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/>
+            </svg>
+            Back
+        </a>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+            <h1 class="page-title">Payment History</h1>
+            <a href="#" class="download-btn" onclick="downloadPDF()">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"/>
+                </svg>
+                Download PDF
+            </a>
+        </div>
+
+        <!-- Payment History -->
+        <div id="paymentHistory">
+            <div class="payment-item">
+                <div class="payment-header">
+                    <div>
+                        <div class="payment-title">Hillview Apartment</div>
+                        <div class="payment-date">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="margin-right: 4px;">
+                                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"/>
+                            </svg>
+                            2024-10-01
+                        </div>
+                    </div>
+                    <div>
+                        <div class="payment-amount">UGX 800,000</div>
+                        <div class="payment-status">Completed</div>
+                    </div>
+                </div>
+                <div class="payment-details">
+                    Purpose: Rent<br>
+                    Payment Method: Mobile Money
+                </div>
+            </div>
+
+            <div class="payment-item">
+                <div class="payment-header">
+                    <div>
+                        <div class="payment-title">Garden Cottage Viewing</div>
+                        <div class="payment-date">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="margin-right: 4px;">
+                                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"/>
+                            </svg>
+                            2024-09-28
+                        </div>
+                    </div>
+                    <div>
+                        <div class="payment-amount">UGX 50,000</div>
+                        <div class="payment-status">Completed</div>
+                    </div>
+                </div>
+                <div class="payment-details">
+                    Purpose: Property Viewing<br>
+                    Payment Method: Card
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Payment Button -->
+    <button class="fab" onclick="showAddPaymentModal()" title="Add Payment">
+        <svg fill="currentColor" viewBox="0 0 20 20" width="24">
+            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
+        </svg>
+    </button>
+
+    <!-- Add Payment Modal -->
+    <div id="addPaymentModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Payment Record</h2>
+                <button class="modal-close" onclick="closeAddPaymentModal()">&times;</button>
+            </div>
+            
+            <form id="addPaymentForm">
+                <div class="form-group">
+                    <label for="paymentProperty" class="form-label">Property</label>
+                    <input type="text" id="paymentProperty" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentAmount" class="form-label">Amount (UGX)</label>
+                    <input type="number" id="paymentAmount" class="form-input" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentDate" class="form-label">Payment Date</label>
+                    <input type="date" id="paymentDate" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentType" class="form-label">Payment Type</label>
+                    <select id="paymentType" class="form-select" required>
+                        <option value="">Select type</option>
+                        <option value="rent">Rent</option>
+                        <option value="viewing_fee">Viewing Fee</option>
+                        <option value="deposit">Deposit</option>
+                        <option value="utilities">Utilities</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentMethod" class="form-label">Payment Method</label>
+                    <select id="paymentMethod" class="form-select" required>
+                        <option value="">Select method</option>
+                        <option value="mobile_money">Mobile Money</option>
+                        <option value="card">Card</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                        <option value="cash">Cash</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="form-button">
+                    <span class="button-text">Add Payment</span>
+                    <span class="loading hidden">Adding...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUser = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = AuthManager.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = '../auth/login.html';
+                return;
+            }
+
+            // Update user initials
+            if (currentUser.name) {
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('userInitials').textContent = initials;
+            }
+        });
+
+        function showAddPaymentModal() {
+            document.getElementById('addPaymentModal').style.display = 'flex';
+        }
+
+        function closeAddPaymentModal() {
+            document.getElementById('addPaymentModal').style.display = 'none';
+            document.getElementById('addPaymentForm').reset();
+        }
+
+        function downloadPDF() {
+            try {
+                const history = document.getElementById('paymentHistory');
+                const items = history ? Array.from(history.querySelectorAll('.payment-item')) : [];
+
+                const printable = `<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<title>Payment History</title>
+<style>
+  @page { size: A4; margin: 16mm; }
+  body { font-family: 'Poppins', Arial, sans-serif; color:#111827; }
+  .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .title { font-size:20px; font-weight:700; }
+  .meta { color:#6b7280; font-size:12px; }
+  .item { border:1px solid #e5e7eb; border-radius:8px; padding:12px; margin:10px 0; }
+  .row { display:flex; justify-content:space-between; align-items:flex-start; }
+  .amount { font-weight:700; }
+</style></head><body>
+  <div class="header">
+    <div class="title">Payment History</div>
+    <div class="meta">Generated: ${new Date().toLocaleString()}</div>
+  </div>
+  ${items.map(it => {
+        const title = it.querySelector('.payment-title')?.textContent?.trim() || '';
+        const date = (it.querySelector('.payment-date')?.textContent || '').replace(/\s+/g,' ').trim();
+        const amount = it.querySelector('.payment-amount')?.textContent?.trim() || '';
+        const detailsHtml = it.querySelector('.payment-details')?.innerHTML || '';
+        const details = detailsHtml.replace(/<br\s*\/?>(\s*)/gi, ' • ');
+        return `<div class="item">
+                  <div class="row">
+                    <div>
+                      <div>${title}</div>
+                      <div class="meta">${date}</div>
+                    </div>
+                    <div class="amount">${amount}</div>
+                  </div>
+                  <div class="meta" style="margin-top:8px;">${details}</div>
+                </div>`;
+      }).join('')}
+</body></html>`;
+
+                const win = window.open('', '_blank');
+                if (!win) {
+                    showNotification('Please allow pop-ups to save the PDF.', 'error');
+                    return;
+                }
+                win.document.open();
+                win.document.write(printable);
+                win.document.close();
+                win.focus();
+                // Give the new window a moment to render before printing
+                setTimeout(() => { try { win.print(); } catch(_){} finally { win.close(); } }, 300);
+            } catch (err) {
+                console.error('PDF generation error:', err);
+                showNotification('Could not generate PDF. Try again.', 'error');
+            }
+        }
+
+        // Add payment form submission
+        document.getElementById('addPaymentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const paymentData = {
+                property_name: document.getElementById('paymentProperty').value,
+                amount: parseFloat(document.getElementById('paymentAmount').value),
+                payment_date: document.getElementById('paymentDate').value,
+                payment_type: document.getElementById('paymentType').value,
+                payment_method: document.getElementById('paymentMethod').value,
+                status: 'completed'
+            };
+
+            const button = e.target.querySelector('button[type="submit"]');
+            const buttonText = button.querySelector('.button-text');
+            const loading = button.querySelector('.loading');
+
+            try {
+                button.disabled = true;
+                buttonText.classList.add('hidden');
+                loading.classList.remove('hidden');
+
+                // Add payment record
+                showNotification('Payment added successfully!', 'success');
+                closeAddPaymentModal();
+                
+                // Add to payment history display
+                addPaymentToHistory(paymentData);
+
+            } catch (error) {
+                console.error('Error adding payment:', error);
+                showNotification('Error adding payment. Please try again.', 'error');
+            } finally {
+                button.disabled = false;
+                buttonText.classList.remove('hidden');
+                loading.classList.add('hidden');
+            }
+        });
+
+        function addPaymentToHistory(paymentData) {
+            const paymentHistory = document.getElementById('paymentHistory');
+            const paymentItem = document.createElement('div');
+            paymentItem.className = 'payment-item';
+            paymentItem.innerHTML = `
+                <div class="payment-header">
+                    <div>
+                        <div class="payment-title">${paymentData.property_name}</div>
+                        <div class="payment-date">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="margin-right: 4px;">
+                                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"/>
+                            </svg>
+                            ${paymentData.payment_date}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="payment-amount">UGX ${paymentData.amount.toLocaleString()}</div>
+                        <div class="payment-status">Completed</div>
+                    </div>
+                </div>
+                <div class="payment-details">
+                    Purpose: ${paymentData.payment_type.charAt(0).toUpperCase() + paymentData.payment_type.slice(1)}<br>
+                    Payment Method: ${paymentData.payment_method.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                </div>
+            `;
+            
+            paymentHistory.insertBefore(paymentItem, paymentHistory.firstChild);
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        async function logout() {
+            await AuthManager.signOut();
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('addPaymentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddPaymentModal();
+            }
+        });
+    </script>
+</body>
+</html>

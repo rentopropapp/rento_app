@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Photos | Rento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .step-container {
+            min-height: 80vh;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .step-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .step-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+
+        .step-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-gray);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 100px;
+            left: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .back-button:hover {
+            color: var(--primary-color);
+        }
+
+        .upload-area {
+            border: 3px dashed #d1d5db;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 24px;
+            background: #f9fafb;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(8, 150, 126, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary-color);
+            background: rgba(8, 150, 126, 0.1);
+        }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .upload-text {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .upload-subtitle {
+            color: var(--text-gray);
+            margin-bottom: 16px;
+        }
+
+        .upload-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .upload-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .photo-preview {
+            position: relative;
+            aspect-ratio: 4/3;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-remove {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: background 0.2s ease;
+        }
+
+        .photo-remove:hover {
+            background: rgba(239, 68, 68, 1);
+        }
+
+        .photo-count {
+            text-align: center;
+            margin-bottom: 24px;
+            font-weight: 500;
+            color: var(--text-gray);
+        }
+
+        .photo-count.valid {
+            color: var(--primary-color);
+        }
+
+        .finish-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .finish-button.enabled {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .finish-button.enabled:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(8, 150, 126, 0.3);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .photos-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 12px;
+            }
+
+            .step-title {
+                font-size: 1.5rem;
+            }
+
+            .back-button {
+                top: 80px;
+                left: 16px;
+            }
+
+            .upload-area {
+                padding: 24px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            
+            <div class="user-menu">
+                <div style="background: var(--primary-color); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="toggleDropdown()" id="userInitials">PM</div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="profile.html" class="dropdown-item">Profile</a>
+                    <a href="#" class="dropdown-item">Switch Account</a>
+                    <a href="#" class="dropdown-item logout-btn" onclick="logout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <a href="add-property-details.html" class="back-button">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd"/>
+        </svg>
+        Back
+    </a>
+
+    <div class="step-container">
+        <div class="step-header">
+            <h1 class="step-title">Select at least 3 high-quality images</h1>
+            <p class="step-subtitle">Make your property stand out with great photos</p>
+        </div>
+
+        <div class="upload-area" id="uploadArea" onclick="triggerFileInput()">
+            <div class="upload-icon">
+                <svg width="32" height="32" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd"/>
+                </svg>
+            </div>
+            <div class="upload-text">Click to upload or drag and drop</div>
+            <div class="upload-subtitle">PNG, JPG up to 10MB each (3-5 photos recommended)</div>
+            <button type="button" class="upload-button">Choose Files</button>
+        </div>
+
+        <input type="file" id="fileInput" class="file-input" multiple accept="image/*" onchange="handleFileSelect(event)">
+
+        <div class="photo-count" id="photoCount">No photos selected</div>
+
+        <div class="photos-grid" id="photosGrid">
+            <!-- Photo previews will appear here -->
+        </div>
+
+        <button class="finish-button" id="finishButton" onclick="finishPropertyListing()">
+            <span class="button-text">Finish Listing</span>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUser = null;
+        let selectedPropertyType = null;
+        let propertyDetails = null;
+        let selectedPhotos = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = AuthManager.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = '../auth/login.html';
+                return;
+            }
+
+            if (currentUser.role !== 'property_manager') {
+                window.location.href = '../auth/login.html';
+                return;
+            }
+
+            // Check if previous steps were completed
+            selectedPropertyType = sessionStorage.getItem('selectedPropertyType');
+            const detailsData = sessionStorage.getItem('propertyDetails');
+            
+            if (!selectedPropertyType || !detailsData) {
+                window.location.href = 'add-property-type.html';
+                return;
+            }
+
+            propertyDetails = JSON.parse(detailsData);
+
+            // Update user initials
+            if (currentUser.name) {
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('userInitials').textContent = initials;
+            }
+
+            setupDragAndDrop();
+        });
+
+        function setupDragAndDrop() {
+            const uploadArea = document.getElementById('uploadArea');
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                handleFiles(files);
+            });
+        }
+
+        function triggerFileInput() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            const maxFiles = 5;
+            const maxSize = 10 * 1024 * 1024; // 10MB
+
+            for (let file of files) {
+                if (selectedPhotos.length >= maxFiles) {
+                    alert(`Maximum ${maxFiles} photos allowed`);
+                    break;
+                }
+
+                if (file.size > maxSize) {
+                    alert(`File "${file.name}" is too large. Maximum size is 10MB.`);
+                    continue;
+                }
+
+                if (!file.type.startsWith('image/')) {
+                    alert(`File "${file.name}" is not an image.`);
+                    continue;
+                }
+
+                const photoData = {
+                    file: file,
+                    url: URL.createObjectURL(file),
+                    id: Date.now() + Math.random()
+                };
+
+                selectedPhotos.push(photoData);
+            }
+
+            updatePhotosDisplay();
+        }
+
+        function updatePhotosDisplay() {
+            const grid = document.getElementById('photosGrid');
+            const countEl = document.getElementById('photoCount');
+            const finishButton = document.getElementById('finishButton');
+
+            // Update count
+            const count = selectedPhotos.length;
+            if (count === 0) {
+                countEl.textContent = 'No photos selected';
+                countEl.classList.remove('valid');
+            } else {
+                countEl.textContent = `${count} photo${count > 1 ? 's' : ''} selected`;
+                if (count >= 3) {
+                    countEl.classList.add('valid');
+                } else {
+                    countEl.classList.remove('valid');
+                }
+            }
+
+            // Enable/disable finish button
+            if (count >= 3) {
+                finishButton.classList.add('enabled');
+            } else {
+                finishButton.classList.remove('enabled');
+            }
+
+            // Update grid
+            grid.innerHTML = '';
+            selectedPhotos.forEach((photo, index) => {
+                const preview = document.createElement('div');
+                preview.className = 'photo-preview';
+                preview.innerHTML = `
+                    <img src="${photo.url}" alt="Property photo ${index + 1}">
+                    <button class="photo-remove" onclick="removePhoto(${index})" title="Remove photo">
+                        ×
+                    </button>
+                `;
+                grid.appendChild(preview);
+            });
+        }
+
+        function removePhoto(index) {
+            const photo = selectedPhotos[index];
+            URL.revokeObjectURL(photo.url); // Clean up object URL
+            selectedPhotos.splice(index, 1);
+            updatePhotosDisplay();
+        }
+
+        async function finishPropertyListing() {
+            if (selectedPhotos.length < 3) {
+                alert('Please select at least 3 photos');
+                return;
+            }
+
+            const finishButton = document.getElementById('finishButton');
+            const buttonText = finishButton.querySelector('.button-text');
+            
+            // Show loading state
+            finishButton.disabled = true;
+            buttonText.innerHTML = '<div class="loading"><div class="spinner"></div>Saving property...</div>';
+
+            try {
+                // Create property object
+                const property = {
+                    id: Date.now().toString(),
+                    name: propertyDetails.name,
+                    type: selectedPropertyType,
+                    location: propertyDetails.location,
+                    description: propertyDetails.description,
+                    amenities: propertyDetails.amenities,
+                    hasViewingFee: propertyDetails.hasViewingFee,
+                    viewingFeeAmount: propertyDetails.viewingFeeAmount,
+                    leaseType: propertyDetails.leaseType,
+                    purpose: propertyDetails.propertyPurpose,
+                    monthlyRent: propertyDetails.monthlyRent,
+                    images: selectedPhotos.map((photo, index) => `property-${Date.now()}-${index}.jpg`),
+                    status: 'active',
+                    managerId: currentUser.email,
+                    dateAdded: new Date().toISOString(),
+                    tenants: [],
+                    complaints: [],
+                    bookings: [],
+                    payments: [],
+                    expenses: []
+                };
+
+                // Save to localStorage (simulate database save)
+                const userProperties = JSON.parse(localStorage.getItem(`properties_${currentUser.email}`) || '[]');
+                userProperties.push(property);
+                localStorage.setItem(`properties_${currentUser.email}`, JSON.stringify(userProperties));
+
+                // Clear session storage
+                sessionStorage.removeItem('selectedPropertyType');
+                sessionStorage.removeItem('propertyDetails');
+
+                // Clean up object URLs
+                selectedPhotos.forEach(photo => URL.revokeObjectURL(photo.url));
+
+                // Show success and redirect
+                alert('Property added successfully!');
+                window.location.href = 'home.html';
+
+            } catch (error) {
+                console.error('Error saving property:', error);
+                alert('Error saving property. Please try again.');
+                
+                // Reset button state
+                finishButton.disabled = false;
+                buttonText.textContent = 'Finish Listing';
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        async function logout() {
+            await AuthManager.signOut();
+        }
+
+        // Event listeners
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        });
+
+        // Clean up object URLs when leaving the page
+        window.addEventListener('beforeunload', function() {
+            selectedPhotos.forEach(photo => URL.revokeObjectURL(photo.url));
+        });
+    </script>
+</body>
+</html>

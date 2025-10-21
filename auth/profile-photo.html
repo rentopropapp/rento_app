@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Photo - Rento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-card">
+            <div class="form-header">
+                <img src="../assets/rento-logo-dark.svg" alt="Rento Logo" class="logo" style="height: 50px; margin-bottom: 20px;">
+                <h1>Add Profile Photo</h1>
+                <p>Upload a profile photo to complete your account setup</p>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div id="photo-preview" style="width: 120px; height: 120px; border-radius: 50%; background: #f0f0f0; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; border: 3px dashed #ddd; overflow: hidden;">
+                    <span style="color: #999; font-size: 14px;">No photo</span>
+                    <img id="preview-img" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                </div>
+                
+                <input type="file" id="photo-input" accept="image/*" style="display: none;">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('photo-input').click()">
+                    Choose Photo
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <button type="button" class="btn-secondary" onclick="skipPhoto()" style="flex: 1;">
+                    Skip for now
+                </button>
+                <button type="button" class="form-button" id="uploadButton" onclick="uploadPhoto()" disabled style="flex: 1; margin: 0;">
+                    <span class="button-text">Save & Continue</span>
+                    <span class="loading hidden">Uploading...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let selectedFile = null;
+
+        document.getElementById('photo-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('photo-preview');
+                    const previewImg = document.getElementById('preview-img');
+                    
+                    preview.querySelector('span').style.display = 'none';
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                    
+                    document.getElementById('uploadButton').disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function uploadPhoto() {
+            if (!selectedFile) return;
+            
+            const button = document.getElementById('uploadButton');
+            const buttonText = button.querySelector('.button-text');
+            const loading = button.querySelector('.loading');
+            
+            try {
+                button.disabled = true;
+                buttonText.classList.add('hidden');
+                loading.classList.remove('hidden');
+                
+                await AuthManager.uploadProfilePhoto(selectedFile);
+                showAlert('success', 'Profile photo uploaded successfully!');
+                
+                setTimeout(() => {
+                    redirectToDashboard();
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                showAlert('error', error.message);
+                
+                button.disabled = false;
+                buttonText.classList.remove('hidden');
+                loading.classList.add('hidden');
+            }
+        }
+
+        function skipPhoto() {
+            redirectToDashboard();
+        }
+
+        function redirectToDashboard() {
+            const user = AuthManager.getCurrentUser();
+            if (user) {
+                AuthManager.redirectAfterLogin(user.role);
+            } else {
+                window.location.href = 'login.html';
+            }
+        }
+
+        function showAlert(type, message) {
+            const container = document.getElementById('alert-container');
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

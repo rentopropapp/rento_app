@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Expenses | Rento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding: 20px 0;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 0 0 8px 0;
+        }
+
+        .page-subtitle {
+            color: var(--text-gray);
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: white;
+            color: var(--text-gray);
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #f8fafc;
+            color: var(--text-dark);
+        }
+
+        .add-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .expenses-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .stat-urgent {
+            color: #dc2626;
+        }
+
+        .stat-pending {
+            color: #f59e0b;
+        }
+
+        .stat-progress {
+            color: #3b82f6;
+        }
+
+        .stat-completed {
+            color: #10b981;
+        }
+
+        .filters-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .filters-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.875rem;
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            width: 250px;
+            font-size: 0.875rem;
+        }
+
+        .expenses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 24px;
+        }
+
+        .expense-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+            position: relative;
+            border-left: 4px solid transparent;
+        }
+
+        .expense-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .priority-urgent {
+            border-left-color: #dc2626;
+        }
+
+        .priority-high {
+            border-left-color: #f59e0b;
+        }
+
+        .priority-medium {
+            border-left-color: #3b82f6;
+        }
+
+        .priority-low {
+            border-left-color: #10b981;
+        }
+
+        .expense-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .expense-info {
+            flex: 1;
+        }
+
+        .expense-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .expense-property {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            margin-bottom: 2px;
+        }
+
+        .expense-category {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+        }
+
+        .expense-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            position: absolute;
+            top: 16px;
+            right: 16px;
+        }
+
+        .status-urgent {
+            background: #fecaca;
+            color: #dc2626;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-progress {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .expense-description {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .expense-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-value {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .expense-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: var(--text-gray);
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            color: var(--text-dark);
+        }
+
+        /* Modal styles */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; border-radius: 16px; padding: 24px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .modal-title { font-size: 1.25rem; font-weight: 600; color: var(--text-dark); margin: 0; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; color: var(--text-gray); cursor: pointer; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-dark); margin-bottom: 6px; }
+
+        @media (max-width: 768px) {
+            .filters-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .expenses-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .expense-meta {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <h1 class="page-title">Property Expenses</h1>
+                <p class="page-subtitle">Track and manage all property-related expenses</p>
+            </div>
+            <div class="header-actions">
+                <a href="property-dashboard.html" class="back-btn" id="backBtn">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenoRule"/>
+                    </svg>
+                    Back to Dashboard
+                </a>
+                <button class="add-btn" onclick="addNewExpense()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenoRule" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenoRule"/>
+                    </svg>
+                    Add Expense
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="expenses-stats">
+            <div class="stat-card">
+                <div class="stat-number stat-urgent">UGX 2.1M</div>
+                <div class="stat-label">This Month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-pending">UGX 780K</div>
+                <div class="stat-label">Pending Payments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-progress">UGX 15.4M</div>
+                <div class="stat-label">Year to Date</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-completed">42</div>
+                <div class="stat-label">Total Expenses</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="filters-row">
+                <input type="text" class="search-input" placeholder="Search by description, vendor, or property..." id="searchInput">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending Payment</option>
+                    <option value="overdue">Overdue</option>
+                    <option value="approved">Approved</option>
+                </select>
+                <select class="filter-select" id="propertyFilter">
+                    <option value="">All Properties</option>
+                    <option value="garden_view">Garden View Apartments</option>
+                    <option value="hillview">Hillview Heights</option>
+                    <option value="sunset">Sunset Heights</option>
+                </select>
+                <select class="filter-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="utilities">Utilities</option>
+                    <option value="insurance">Insurance</option>
+                    <option value="supplies">Supplies</option>
+                    <option value="services">Services</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Expenses Grid -->
+        <div class="expenses-grid" id="expensesGrid">
+            <div class="expense-card priority-urgent">
+                <div class="expense-status status-urgent">Overdue</div>
+                <div class="expense-header">
+                    <div class="expense-info">
+                        <div class="expense-title">Plumbing Repair Services</div>
+                        <div class="expense-property">Garden View Apartments - Unit 2B</div>
+                        <div class="expense-category">Category: Maintenance</div>
+                    </div>
+                </div>
+
+                <div class="expense-description">
+                    Emergency plumbing repair for water leak under kitchen sink. Includes parts replacement and labor costs for immediate fixing to prevent property damage.
+                </div>
+
+                <div class="expense-meta">
+                    <div class="meta-item">
+                        <div class="meta-label">Vendor</div>
+                        <div class="meta-value">QuickFix Plumbing</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Date</div>
+                        <div class="meta-value">Oct 15, 2024</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Amount</div>
+                        <div class="meta-value">UGX 150,000</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Due Date</div>
+                        <div class="meta-value">Oct 20, 2024</div>
+                    </div>
+                </div>
+
+                <div class="expense-actions">
+                    <button class="action-btn btn-primary" onclick="markAsPaid('expense1')">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                            <path fillRule="evenoRule" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenoRule"/>
+                        </svg>
+                        Mark as Paid
+                    </button>
+                    <button class="action-btn btn-secondary" onclick="viewDetails('expense1')">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                            <path fillRule="evenoRule" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenoRule"/>
+                        </svg>
+                        Details
+                    </button>
+                </div>
+            </div>
+
+            <div class="expense-card priority-high">
+                <div class="expense-status status-pending">Pending</div>
+                <div class="expense-header">
+                    <div class="expense-info">
+                        <div class="expense-title">Monthly Electricity Bill</div>
+                        <div class="expense-property">Hillview Heights - Common Areas</div>
+                        <div class="expense-category">Category: Utilities</div>
+                    </div>
+                </div>
+
+                <div class="expense-description">
+                    Monthly electricity bill for common area lighting, elevators, and shared facilities. Payment due soon to avoid late fees and service interruption.
+                </div>
+
+                <div class="expense-meta">
+                    <div class="meta-item">
+                        <div class="meta-label">Vendor</div>
+                        <div class="meta-value">UMEME Limited</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Date</div>
+                        <div class="meta-value">Oct 18, 2024</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Amount</div>
+                        <div class="meta-value">UGX 320,000</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Due Date</div>
+                        <div class="meta-value">Oct 25, 2024</div>
+                    </div>
+                </div>
+
+                <div class="expense-actions">
+                    <button class="action-btn btn-primary" onclick="approvePayment('expense2')">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenoRule" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenoRule"/>
+                        </svg>
+                        Approve Payment
+                    </button>
+                    <button class="action-btn btn-secondary" onclick="viewDetails('expense2')">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                            <path fillRule="evenoRule" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenoRule"/>
+                        </svg>
+                        Details
+                    </button>
+                </div>
+            </div>
+
+            <div class="expense-card priority-medium">
+                <div class="expense-status status-progress">Approved</div>
+                <div class="expense-header">
+                    <div class="expense-info">
+                        <div class="expense-title">Property Insurance Premium</div>
+                        <div class="expense-property">Sunset Heights - Building Insurance</div>
+                        <div class="expense-category">Category: Insurance</div>
+                    </div>
+                </div>
+
+                <div class="expense-description">
+                    Annual property insurance premium covering fire, theft, and liability. Payment has been approved and is scheduled for processing within 2 business days.
+                </div>
+
+                <div class="expense-meta">
+                    <div class="meta-item">
+                        <div class="meta-label">Vendor</div>
+                        <div class="meta-value">UAP Insurance</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Date</div>
+                        <div class="meta-value">Oct 16, 2024</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Amount</div>
+                        <div class="meta-value">UGX 450,000</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Payment Date</div>
+                        <div class="meta-value">Oct 22, 2024</div>
+                    </div>
+                </div>
+
+                <div class="expense-actions">
+                    <button class="action-btn btn-primary" onclick="processPayment('expense3')">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                        </svg>
+                        Process Payment
+                    </button>
+                    <button class="action-btn btn-secondary" onclick="viewDetails('expense3')">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                            <path fillRule="evenoRule" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenoRule"/>
+                        </svg>
+                        Details
+                    </button>
+                </div>
+            </div>
+
+            <div class="expense-card priority-low">
+                <div class="expense-status status-completed">Paid</div>
+                <div class="expense-header">
+                    <div class="expense-info">
+                        <div class="expense-title">Cleaning Supplies</div>
+                        <div class="expense-property">Garden View Apartments - Maintenance</div>
+                        <div class="expense-category">Category: Supplies</div>
+                    </div>
+                </div>
+
+                <div class="expense-description">
+                    Monthly purchase of cleaning supplies for common areas including detergents, disinfectants, and maintenance tools for property upkeep.
+                </div>
+
+                <div class="expense-meta">
+                    <div class="meta-item">
+                        <div class="meta-label">Vendor</div>
+                        <div class="meta-value">CleanPro Supplies</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Paid On</div>
+                        <div class="meta-value">Oct 12, 2024</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Amount</div>
+                        <div class="meta-value">UGX 85,000</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Payment Method</div>
+                        <div class="meta-value">Bank Transfer</div>
+                    </div>
+                </div>
+
+                <div class="expense-actions">
+                    <button class="action-btn btn-primary" onclick="viewReceipt('expense4')">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenoRule" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenoRule"/>
+                        </svg>
+                        View Receipt
+                    </button>
+                    <button class="action-btn btn-secondary" onclick="viewDetails('expense4')">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                            <path fillRule="evenoRule" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenoRule"/>
+                        </svg>
+                        Details
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div id="addExpenseModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Expense</h2>
+                <button class="modal-close" onclick="closeAddExpenseModal()">&times;</button>
+            </div>
+            <form id="addExpenseForm" onsubmit="submitExpense(event)">
+                <div class="form-grid" style="margin-bottom: 12px;">
+                    <div>
+                        <label class="form-label">Description</label>
+                        <input type="text" id="expDesc" class="form-input" required placeholder="e.g. Plumbing repair">
+                    </div>
+                    <div>
+                        <label class="form-label">Category</label>
+                        <select id="expCategory" class="form-input" required>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="insurance">Insurance</option>
+                            <option value="supplies">Supplies</option>
+                            <option value="services">Services</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Vendor</label>
+                        <input type="text" id="expVendor" class="form-input" required placeholder="e.g. QuickFix Plumbing">
+                    </div>
+                    <div>
+                        <label class="form-label">Amount (UGX)</label>
+                        <input type="number" id="expAmount" class="form-input" required placeholder="e.g. 150000">
+                    </div>
+                    <div>
+                        <label class="form-label">Date</label>
+                        <input type="date" id="expDate" class="form-input" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Due Date</label>
+                        <input type="date" id="expDue" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Property</label>
+                        <select id="expProperty" class="form-input">
+                            <option value="garden_view">Garden View Apartments</option>
+                            <option value="hillview">Hillview Heights</option>
+                            <option value="sunset">Sunset Heights</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Priority</label>
+                        <select id="expPriority" class="form-input">
+                            <option value="urgent">Urgent</option>
+                            <option value="high">High</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Status</label>
+                        <select id="expStatus" class="form-input">
+                            <option value="pending" selected>Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="completed">Paid</option>
+                            <option value="urgent">Overdue</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label class="form-label">Notes</label>
+                    <textarea id="expNotes" class="form-input" rows="3" placeholder="Optional details..."></textarea>
+                </div>
+                <div style="display:flex; gap: 8px; justify-content: flex-end;">
+                    <button type="button" class="action-btn btn-secondary" onclick="closeAddExpenseModal()">Cancel</button>
+                    <button type="submit" class="action-btn btn-primary">Save Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUser = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = AuthManager.getCurrentUser() || {
+                email: 'test@propertymanager.com',
+                name: 'Property Manager',
+                role: 'property_manager'
+            };
+
+            loadPropertyData();
+            
+            // Initialize filters
+            document.getElementById('searchInput').addEventListener('input', filterExpenses);
+            document.getElementById('statusFilter').addEventListener('change', filterExpenses);
+            document.getElementById('propertyFilter').addEventListener('change', filterExpenses);
+            document.getElementById('categoryFilter').addEventListener('change', filterExpenses);
+        });
+
+        function loadPropertyData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const propertyId = urlParams.get('id') || localStorage.getItem('selectedPropertyId');
+            
+            if (!propertyId) {
+                document.getElementById('backBtn').href = 'properties.html';
+            } else {
+                document.getElementById('backBtn').href = `property-dashboard.html?id=${propertyId}`;
+            }
+        }
+
+        function filterExpenses() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const propertyFilter = document.getElementById('propertyFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+
+            // Filtering logic would be implemented here
+            console.log('Filtering expenses:', { searchTerm, statusFilter, propertyFilter, categoryFilter });
+        }
+
+        function addNewExpense() {
+            openAddExpenseModal();
+        }
+
+        function openAddExpenseModal() {
+            const modal = document.getElementById('addExpenseModal');
+            modal.style.display = 'flex';
+            const d = document.getElementById('expDate');
+            if (d && !d.value) d.valueAsDate = new Date();
+        }
+
+        function closeAddExpenseModal() {
+            document.getElementById('addExpenseModal').style.display = 'none';
+            const form = document.getElementById('addExpenseForm');
+            if (form) form.reset();
+        }
+
+        function submitExpense(event) {
+            event.preventDefault();
+            const desc = document.getElementById('expDesc').value.trim();
+            const category = document.getElementById('expCategory').value;
+            const vendor = document.getElementById('expVendor').value.trim();
+            const amount = parseInt(document.getElementById('expAmount').value || '0');
+            const date = document.getElementById('expDate').value;
+            const due = document.getElementById('expDue').value;
+            const propertyId = document.getElementById('expProperty').value;
+            const priority = document.getElementById('expPriority').value; // urgent|high|medium|low
+            const status = document.getElementById('expStatus').value; // pending|approved|completed|urgent
+            const notes = document.getElementById('expNotes').value.trim();
+
+            const propertyNameMap = { garden_view: 'Garden View Apartments', hillview: 'Hillview Heights', sunset: 'Sunset Heights' };
+            const propertyName = propertyNameMap[propertyId] || 'Property';
+
+            const card = document.createElement('div');
+            card.className = `expense-card priority-${priority}`;
+            const statusClass = status === 'completed' ? 'status-completed' : status === 'approved' ? 'status-progress' : status === 'urgent' ? 'status-urgent' : 'status-pending';
+            const statusText = status === 'completed' ? 'Paid' : status === 'approved' ? 'Approved' : status === 'urgent' ? 'Overdue' : 'Pending';
+
+            card.innerHTML = `
+                <div class=\"expense-status ${statusClass}\">${statusText}</div>
+                <div class=\"expense-header\">
+                    <div class=\"expense-info\">
+                        <div class=\"expense-title\">${escapeHtml(desc)}</div>
+                        <div class=\"expense-property\">${propertyName}</div>
+                        <div class=\"expense-category\">Category: ${capitalize(category)}</div>
+                    </div>
+                </div>
+                <div class=\"expense-description\">${notes || ''}</div>
+                <div class=\"expense-meta\">
+                    <div class=\"meta-item\">
+                        <div class=\"meta-label\">Vendor</div>
+                        <div class=\"meta-value\">${escapeHtml(vendor)}</div>
+                    </div>
+                    <div class=\"meta-item\">
+                        <div class=\"meta-label\">Date</div>
+                        <div class=\"meta-value\">${formatDateShort(date)}</div>
+                    </div>
+                    <div class=\"meta-item\">
+                        <div class=\"meta-label\">Amount</div>
+                        <div class=\"meta-value\">UGX ${amount.toLocaleString()}</div>
+                    </div>
+                    <div class=\"meta-item\">
+                        <div class=\"meta-label\">${status === 'completed' ? 'Paid On' : 'Due Date'}</div>
+                        <div class=\"meta-value\">${due ? formatDateShort(due) : '-'}</div>
+                    </div>
+                </div>
+                <div class=\"expense-actions\">
+                    ${status !== 'completed' ? `<button class=\"action-btn btn-primary\" onclick=\"markAsPaid('${Date.now()}')\">Mark as Paid</button>` : `<button class=\"action-btn btn-secondary\" onclick=\"viewReceipt('${Date.now()}')\">View Receipt</button>`}
+                    <button class=\"action-btn btn-secondary\" onclick=\"viewDetails('${Date.now()}')\">Details</button>
+                </div>
+            `;
+
+            const grid = document.getElementById('expensesGrid');
+            grid.insertBefore(card, grid.firstChild);
+            closeAddExpenseModal();
+            showNotification('Expense added', 'success');
+        }
+
+        function formatDateShort(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1).replace('-', ' '); }
+        function escapeHtml(s) { return s.replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]); }); }
+
+        // Close modal on overlay click
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('addExpenseModal');
+            if (modal && e.target === modal) closeAddExpenseModal();
+        });
+
+        function markAsPaid(expenseId) {
+            showNotification(`Marking expense as paid: ${expenseId}`, 'success');
+            // Implementation would update payment status
+        }
+
+        function approvePayment(expenseId) {
+            showNotification(`Approving payment for: ${expenseId}`, 'success');
+            // Implementation would approve payment
+        }
+
+        function processPayment(expenseId) {
+            showNotification(`Processing payment for: ${expenseId}`, 'info');
+            // Implementation would process payment
+        }
+
+        function viewReceipt(expenseId) {
+            showNotification(`Viewing receipt for: ${expenseId}`, 'info');
+            // Implementation would open receipt view
+        }
+
+        function viewDetails(expenseId) {
+            showNotification(`Viewing details for: ${expenseId}`, 'info');
+            // Implementation would open detailed view modal
+        }
+
+        // Helper function for notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'info' ? '#3b82f6' : type === 'error' ? '#ef4444' : '#10b981'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                font-weight: 500;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

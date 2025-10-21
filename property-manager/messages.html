@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages | Rento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .messages-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            margin-bottom: 100px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .back-btn {
+            background: white;
+            color: var(--text-gray);
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #f8fafc;
+            color: var(--text-dark);
+        }
+
+        .messages-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+            min-height: 600px;
+        }
+
+        .message-sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            height: fit-content;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .compose-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .compose-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .recipient-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .recipient-option {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .recipient-option:hover {
+            background: #f1f5f9;
+            border-color: var(--primary-color);
+        }
+
+        .recipient-option.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .recipient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .recipient-option.active .recipient-avatar {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .recipient-info h4 {
+            margin: 0 0 4px 0;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .recipient-info p {
+            margin: 0;
+            font-size: 0.75rem;
+            color: var(--text-gray);
+        }
+
+        .recipient-option.active .recipient-info p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .message-compose {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .compose-header {
+            margin-bottom: 24px;
+        }
+
+        .compose-title {
+            font-size: 1.375rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0 0 8px 0;
+        }
+
+        .compose-subtitle {
+            color: var(--text-gray);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .message-type-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .type-option {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .type-option:hover {
+            border-color: var(--primary-color);
+        }
+
+        .type-option.active {
+            border-color: var(--primary-color);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .type-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            background: #f8fafc;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-gray);
+        }
+
+        .type-option.active .type-icon {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .type-title {
+            font-weight: 600;
+            margin: 0 0 4px 0;
+            font-size: 0.875rem;
+        }
+
+        .type-description {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            margin: 0;
+        }
+
+        .priority-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .priority-option {
+            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .priority-low {
+            color: #059669;
+            border-color: #a7f3d0;
+        }
+
+        .priority-low:hover, .priority-low.active {
+            background: #ecfdf5;
+            border-color: #059669;
+        }
+
+        .priority-normal {
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+
+        .priority-normal:hover, .priority-normal.active {
+            background: #eff6ff;
+            border-color: #2563eb;
+        }
+
+        .priority-high {
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
+        .priority-high:hover, .priority-high.active {
+            background: #fef2f2;
+            border-color: #dc2626;
+        }
+
+        .send-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+        }
+
+        .delivery-options {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.875rem;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-option input {
+            margin: 0;
+        }
+
+        .send-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+
+        .send-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .recent-messages {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .recent-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-dark);
+        }
+
+        .message-history {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .message-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .message-recipient {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .message-date {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+        }
+
+        .message-preview {
+            font-size: 0.875rem;
+            color: var(--text-gray);
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .messages-container {
+                padding: 16px;
+            }
+
+            .messages-content {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .message-sidebar {
+                order: 2;
+            }
+
+            .message-compose {
+                order: 1;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 16px;
+            }
+
+            .send-options {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 16px;
+            }
+
+            .delivery-options {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            
+            <div class="user-menu">
+                <div style="background: var(--primary-color); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="toggleDropdown()" id="userInitials">PM</div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="profile.html" class="dropdown-item">Profile</a>
+                    <a href="#" class="dropdown-item">Switch Account</a>
+                    <a href="#" class="dropdown-item logout-btn" onclick="logout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="messages-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1 style="font-size: 1.875rem; font-weight: 700; color: var(--text-dark); margin: 0;">Messages</h1>
+                <p style="color: var(--text-gray); margin: 8px 0 0 0;">Send notifications and updates to your tenants</p>
+            </div>
+            <a href="property-dashboard.html" class="back-btn" id="backBtn">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd"/>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <div class="messages-content">
+            <!-- Message Sidebar -->
+            <div class="message-sidebar">
+                <div class="sidebar-header">
+                    <h2 class="sidebar-title">Recipients</h2>
+                    <button class="compose-btn" onclick="clearSelection()">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
+                        </svg>
+                        Clear
+                    </button>
+                </div>
+
+                <div class="recipient-options" id="recipientOptions">
+                    <!-- Recipients will be loaded here -->
+                </div>
+
+                <!-- Recent Messages -->
+                <div class="recent-messages">
+                    <h3 class="recent-title">Recent Messages</h3>
+                    <div class="message-history" id="messageHistory">
+                        <!-- Recent messages will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Compose -->
+            <div class="message-compose">
+                <div class="compose-header">
+                    <h2 class="compose-title">Compose Message</h2>
+                    <p class="compose-subtitle" id="recipientDisplay">Select recipients from the sidebar</p>
+                </div>
+
+                <form id="messageForm" onsubmit="sendMessage(event)">
+                    <!-- Message Type Selection -->
+                    <div class="message-type-selector">
+                        <div class="type-option active" onclick="selectMessageType('notice')" data-type="notice">
+                            <div class="type-icon">
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/>
+                                </svg>
+                            </div>
+                            <h4 class="type-title">Notice</h4>
+                            <p class="type-description">General announcements</p>
+                        </div>
+                        <div class="type-option" onclick="selectMessageType('reminder')" data-type="reminder">
+                            <div class="type-icon">
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"/>
+                                </svg>
+                            </div>
+                            <h4 class="type-title">Reminder</h4>
+                            <p class="type-description">Payment or maintenance</p>
+                        </div>
+                        <div class="type-option" onclick="selectMessageType('alert')" data-type="alert">
+                            <div class="type-icon">
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+                                </svg>
+                            </div>
+                            <h4 class="type-title">Alert</h4>
+                            <p class="type-description">Urgent notifications</p>
+                        </div>
+                    </div>
+
+                    <!-- Priority Selection -->
+                    <div class="form-group">
+                        <label class="form-label">Priority</label>
+                        <div class="priority-selector">
+                            <div class="priority-option priority-low" onclick="selectPriority('low')" data-priority="low">Low</div>
+                            <div class="priority-option priority-normal active" onclick="selectPriority('normal')" data-priority="normal">Normal</div>
+                            <div class="priority-option priority-high" onclick="selectPriority('high')" data-priority="high">High</div>
+                        </div>
+                    </div>
+
+                    <!-- Subject -->
+                    <div class="form-group">
+                        <label class="form-label" for="messageSubject">Subject</label>
+                        <input type="text" id="messageSubject" class="form-input" placeholder="Enter message subject..." required>
+                    </div>
+
+                    <!-- Message Content -->
+                    <div class="form-group">
+                        <label class="form-label" for="messageContent">Message</label>
+                        <textarea id="messageContent" class="form-input form-textarea" placeholder="Type your message here..." required></textarea>
+                    </div>
+
+                    <!-- Send Options -->
+                    <div class="send-options">
+                        <div class="delivery-options">
+                            <label class="checkbox-option">
+                                <input type="checkbox" id="emailDelivery" checked>
+                                <span>Send as notification in app</span>
+                            </label>
+                            <label class="checkbox-option">
+                                <input type="checkbox" id="smsDelivery">
+                                <span>Also send SMS</span>
+                            </label>
+                        </div>
+                        <button type="submit" class="send-btn" disabled id="sendBtn">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                            </svg>
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUser = null;
+        let selectedRecipients = [];
+        let selectedMessageType = 'notice';
+        let selectedPriority = 'normal';
+        let messageHistory = [
+            {
+                id: 1,
+                recipient: 'All Tenants',
+                subject: 'Monthly Maintenance Schedule',
+                preview: 'Upcoming maintenance activities for October...',
+                date: '2024-10-15',
+                type: 'notice'
+            },
+            {
+                id: 2,
+                recipient: 'Sarah Johnson',
+                subject: 'Rent Payment Reminder',
+                preview: 'Your rent payment is due in 3 days...',
+                date: '2024-10-12',
+                type: 'reminder'
+            },
+            {
+                id: 3,
+                recipient: 'All Tenants',
+                subject: 'Water Supply Interruption',
+                preview: 'Please be informed that water supply will be...',
+                date: '2024-10-10',
+                type: 'alert'
+            }
+        ];
+
+        let tenants = [
+            { id: 'all', name: 'All Tenants', unit: 'Broadcast message', avatar: 'AT' },
+            { id: 1, name: 'Sarah Johnson', unit: 'Unit A2', avatar: 'SJ' },
+            { id: 2, name: 'Michael Okello', unit: 'Unit 3A', avatar: 'MO' },
+            { id: 3, name: 'Agnes Nakato', unit: 'Unit 1A', avatar: 'AN' },
+            { id: 4, name: 'James Mwangi', unit: 'Unit 4C', avatar: 'JM' },
+            { id: 5, name: 'Ruth Atieno', unit: 'Unit 2B', avatar: 'RA' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = AuthManager.getCurrentUser() || {
+                email: 'test@propertymanager.com',
+                name: 'Property Manager',
+                role: 'property_manager'
+            };
+
+            // Update user initials
+            if (currentUser.name) {
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('userInitials').textContent = initials;
+            }
+
+            loadPropertyData();
+            renderRecipients();
+            renderMessageHistory();
+            
+            // Add form validation
+            document.getElementById('messageSubject').addEventListener('input', validateForm);
+            document.getElementById('messageContent').addEventListener('input', validateForm);
+        });
+
+        function loadPropertyData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const propertyId = urlParams.get('id') || localStorage.getItem('selectedPropertyId');
+            
+            if (!propertyId) {
+                document.getElementById('backBtn').href = 'properties.html';
+            } else {
+                document.getElementById('backBtn').href = `property-dashboard.html?id=${propertyId}`;
+            }
+        }
+
+        function renderRecipients() {
+            const container = document.getElementById('recipientOptions');
+            container.innerHTML = tenants.map(tenant => `
+                <div class="recipient-option" onclick="toggleRecipient('${tenant.id}')" data-recipient="${tenant.id}">
+                    <div class="recipient-avatar">${tenant.avatar}</div>
+                    <div class="recipient-info">
+                        <h4>${tenant.name}</h4>
+                        <p>${tenant.unit}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderMessageHistory() {
+            const container = document.getElementById('messageHistory');
+            container.innerHTML = messageHistory.map(message => `
+                <div class="message-item">
+                    <div class="message-meta">
+                        <span class="message-recipient">${message.recipient}</span>
+                        <span class="message-date">${formatDate(message.date)}</span>
+                    </div>
+                    <div class="message-preview">${message.subject}: ${message.preview}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleRecipient(recipientId) {
+            const option = document.querySelector(`[data-recipient="${recipientId}"]`);
+            
+            if (recipientId === 'all') {
+                // If selecting "All Tenants", clear other selections
+                selectedRecipients = ['all'];
+                document.querySelectorAll('.recipient-option').forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+            } else {
+                // If selecting individual tenant, remove "All Tenants" selection
+                const allOption = document.querySelector('[data-recipient="all"]');
+                allOption.classList.remove('active');
+                selectedRecipients = selectedRecipients.filter(id => id !== 'all');
+                
+                if (selectedRecipients.includes(recipientId)) {
+                    selectedRecipients = selectedRecipients.filter(id => id !== recipientId);
+                    option.classList.remove('active');
+                } else {
+                    selectedRecipients.push(recipientId);
+                    option.classList.add('active');
+                }
+            }
+
+            updateRecipientDisplay();
+            validateForm();
+        }
+
+        function clearSelection() {
+            selectedRecipients = [];
+            document.querySelectorAll('.recipient-option').forEach(opt => opt.classList.remove('active'));
+            updateRecipientDisplay();
+            validateForm();
+        }
+
+        function updateRecipientDisplay() {
+            const display = document.getElementById('recipientDisplay');
+            if (selectedRecipients.length === 0) {
+                display.textContent = 'Select recipients from the sidebar';
+            } else if (selectedRecipients.includes('all')) {
+                display.textContent = 'Sending to: All Tenants';
+            } else {
+                const names = selectedRecipients.map(id => tenants.find(t => t.id === id)?.name).join(', ');
+                display.textContent = `Sending to: ${names}`;
+            }
+        }
+
+        function selectMessageType(type) {
+            selectedMessageType = type;
+            document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelector(`[data-type="${type}"]`).classList.add('active');
+        }
+
+        function selectPriority(priority) {
+            selectedPriority = priority;
+            document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelector(`[data-priority="${priority}"]`).classList.add('active');
+        }
+
+        function validateForm() {
+            const subject = document.getElementById('messageSubject').value.trim();
+            const content = document.getElementById('messageContent').value.trim();
+            const hasRecipients = selectedRecipients.length > 0;
+            
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = !subject || !content || !hasRecipients;
+        }
+
+        function sendMessage(event) {
+            event.preventDefault();
+            
+            const subject = document.getElementById('messageSubject').value.trim();
+            const content = document.getElementById('messageContent').value.trim();
+            const emailDelivery = document.getElementById('emailDelivery').checked;
+            const smsDelivery = document.getElementById('smsDelivery').checked;
+            
+            // Create message object
+            const message = {
+                id: Date.now(),
+                recipients: selectedRecipients,
+                recipientNames: selectedRecipients.includes('all') ? 'All Tenants' : 
+                               selectedRecipients.map(id => tenants.find(t => t.id === id)?.name).join(', '),
+                subject: subject,
+                content: content,
+                type: selectedMessageType,
+                priority: selectedPriority,
+                deliveryMethods: {
+                    app: emailDelivery,
+                    sms: smsDelivery
+                },
+                timestamp: new Date().toISOString(),
+                status: 'sent'
+            };
+
+            // Add to message history
+            messageHistory.unshift({
+                id: message.id,
+                recipient: message.recipientNames,
+                subject: message.subject,
+                preview: message.content.substring(0, 50) + '...',
+                date: new Date().toISOString().split('T')[0],
+                type: message.type
+            });
+
+            // Show success notification
+            const recipientCount = selectedRecipients.includes('all') ? tenants.length - 1 : selectedRecipients.length;
+            showNotification(`Message sent successfully to ${recipientCount} recipient(s)!`, 'success');
+            
+            // Simulate app notification delivery
+            setTimeout(() => {
+                showNotification('Message delivered to tenant app notices', 'info');
+            }, 1500);
+
+            if (smsDelivery) {
+                setTimeout(() => {
+                    showNotification('SMS notifications sent', 'info');
+                }, 2500);
+            }
+
+            // Reset form
+            document.getElementById('messageForm').reset();
+            clearSelection();
+            selectMessageType('notice');
+            selectPriority('normal');
+            renderMessageHistory();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        async function logout() {
+            await AuthManager.signOut();
+        }
+
+        // Event listeners
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        });
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'info' ? '#3b82f6' : type === 'error' ? '#ef4444' : '#10b981'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                font-weight: 500;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

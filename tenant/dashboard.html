@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Rento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            
+            <ul class="nav-links">
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="properties.html">Properties</a></li>
+                <li><a href="payments.html">Payments</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            
+            <div class="user-menu">
+                <img src="../assets/default-avatar.png" alt="Profile" class="user-avatar" id="userAvatar" onclick="toggleDropdown()">
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="profile.html" class="dropdown-item">Profile</a>
+                    <a href="#" class="dropdown-item" onclick="openAccountSwitcher()">Switch Account</a>
+                    <a href="#" class="dropdown-item logout-btn" onclick="logout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="dashboard.html" class="mobile-nav-item active">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                </svg>
+                Dashboard
+            </a>
+            <a href="properties.html" class="mobile-nav-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
+                </svg>
+                Properties
+            </a>
+            <a href="payments.html" class="mobile-nav-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z"/>
+                </svg>
+                Payments
+            </a>
+            <a href="profile.html" class="mobile-nav-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                </svg>
+                Profile
+            </a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="page-header">
+            <h1 class="page-title">Tenant Dashboard</h1>
+        </div>
+
+        <!-- Current Rented Properties -->
+        <div style="margin-bottom: 40px;">
+            <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--text-dark); margin-bottom: 20px;">My Properties</h2>
+            <div id="currentProperties" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px;">
+                <!-- Current rented properties will be loaded here -->
+                <div class="property-card">
+                    <div class="property-content">
+                        <div style="text-align: center; padding: 40px 20px;">
+                            <div class="loading"></div>
+                            <p style="margin-top: 16px; color: var(--text-gray);">Loading your properties...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheduled Viewings -->
+        <div style="margin-top: 40px;">
+            <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--text-dark); margin-bottom: 20px;">Scheduled Viewings</h2>
+            <div id="scheduledViewings" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px;">
+                <!-- Scheduled viewings will be loaded here -->
+                <div class="property-card">
+                    <div class="property-content">
+                        <div style="text-align: center; padding: 40px 20px;">
+                            <div class="loading"></div>
+                            <p style="margin-top: 16px; color: var(--text-gray);">Loading scheduled viewings...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style="margin-top: 40px;">
+            <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--text-dark); margin-bottom: 20px;">Quick Actions</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                <button class="cta-button" onclick="window.location.href='properties.html'" style="padding: 20px; font-size: 1rem;">
+                    Browse Properties
+                </button>
+                <button class="cta-button" onclick="window.location.href='payments.html'" style="padding: 20px; font-size: 1rem;">
+                    Payment History
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Search Request Modal -->
+    <div id="searchRequestModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Submit Search Request</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <form id="searchRequestForm">
+                <div class="form-group">
+                    <label for="propertyType" class="form-label">Property Type</label>
+                    <select id="propertyType" class="form-select" required>
+                        <option value="">Select type</option>
+                        <option value="apartment">Apartment</option>
+                        <option value="house">House</option>
+                        <option value="studio">Studio</option>
+                        <option value="commercial">Commercial</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="location" class="form-label">Preferred Location</label>
+                    <input type="text" id="location" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="minPrice" class="form-label">Minimum Price</label>
+                    <input type="number" id="minPrice" class="form-input" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="maxPrice" class="form-label">Maximum Price</label>
+                    <input type="number" id="maxPrice" class="form-input" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="additionalInfo" class="form-label">Additional Requirements</label>
+                    <textarea id="additionalInfo" class="form-textarea" rows="3" placeholder="Any specific requirements or preferences..."></textarea>
+                </div>
+
+                <button type="submit" class="form-button">
+                    <span class="button-text">Submit Request</span>
+                    <span class="loading hidden">Submitting...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUser = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                currentUser = AuthManager.getCurrentUser();
+                if (!currentUser) {
+                    // Create a mock user for testing
+                    currentUser = {
+                        id: 'test-tenant-123',
+                        name: 'John Tenant',
+                        email: 'john.tenant@example.com',
+                        role: 'tenant',
+                        profile_photo_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face&auto=format&q=80'
+                    };
+                }
+
+                // Update user avatar with profile photo or initials
+                updateUserAvatar(currentUser);
+
+                // Load data - always load mock data for demonstration
+                loadCurrentProperties();
+                loadScheduledViewings();
+
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+                // Still load mock data even if there's an error
+                loadMockProperties();
+                loadMockScheduledViewings();
+            }
+        });
+
+        // Update avatar when user switches accounts (listen for storage changes)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'user') {
+                const newUser = e.newValue ? JSON.parse(e.newValue) : null;
+                if (newUser) {
+                    currentUser = newUser;
+                    updateUserAvatar(currentUser);
+                }
+            }
+        });
+
+        function loadCurrentProperties() {
+            // Always show mock data for demonstration purposes
+            loadMockProperties();
+        }
+
+        function loadMockProperties() {
+            const mockProperties = [
+                {
+                    property_id: 'demo1',
+                    property_name: 'Modern Downtown Apartment',
+                    location: 'Downtown, City Center',
+                    price: 1500,
+                    photos_urls: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400'],
+                    lease_start_date: '2024-01-01',
+                    lease_end_date: '2024-12-31',
+                    complaints: 2,
+                    notices: 3,
+                    expenses: 567.85
+                },
+                {
+                    property_id: 'demo2',
+                    property_name: 'Cozy Studio Loft',
+                    location: 'Midtown, Arts District',
+                    price: 1200,
+                    photos_urls: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400'],
+                    lease_start_date: '2023-06-15',
+                    lease_end_date: '2025-06-14',
+                    complaints: 0,
+                    notices: 1,
+                    expenses: 234.50
+                },
+                {
+                    property_id: 'demo3',
+                    property_name: 'Suburban Family Home',
+                    location: 'Oak Hills, Family Neighborhood',
+                    price: 2200,
+                    photos_urls: ['https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400'],
+                    lease_start_date: '2023-09-01',
+                    lease_end_date: '2025-08-31',
+                    complaints: 1,
+                    notices: 2,
+                    expenses: 1205.30
+                },
+                {
+                    property_id: 'demo4',
+                    property_name: 'Luxury Penthouse Suite',
+                    location: 'Upper East Side, Manhattan',
+                    price: 3500,
+                    photos_urls: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400'],
+                    lease_start_date: '2024-03-01',
+                    lease_end_date: '2025-02-28',
+                    complaints: 0,
+                    notices: 0,
+                    expenses: 890.20
+                },
+                {
+                    property_id: 'demo5',
+                    property_name: 'Waterfront Condo',
+                    location: 'Marina Bay, Waterfront District',
+                    price: 2800,
+                    photos_urls: ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400'],
+                    lease_start_date: '2024-05-15',
+                    lease_end_date: '2025-05-14',
+                    complaints: 1,
+                    notices: 4,
+                    expenses: 425.75
+                }
+            ];
+
+            const container = document.getElementById('currentProperties');
+            container.innerHTML = mockProperties.map(property => `
+                <div class="property-card" onclick="openPropertyManagement('${property.property_id}')" style="cursor: pointer;">
+                    <div class="property-image" style="background-image: url('${property.photos_urls[0]}'); height: 200px; background-size: cover; background-position: center; position: relative;">
+                        <div style="position: absolute; top: 12px; right: 12px; background: var(--primary-color); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                            RENTING
+                        </div>
+                    </div>
+                    <div class="property-content">
+                        <div class="property-title">${property.property_name}</div>
+                        <div class="property-location">📍 ${property.location}</div>
+                        <div class="property-price">${formatCurrency(property.price)}/month</div>
+                        
+                        <div style="margin: 12px 0; font-size: 14px; color: var(--text-gray);">
+                            <div><strong>Lease Start:</strong> ${formatDate(property.lease_start_date)}</div>
+                            <div><strong>Lease End:</strong> ${formatDate(property.lease_end_date)}</div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px; margin-top: 16px;">
+                            <div style="flex: 1; text-align: center; padding: 8px; background: ${property.complaints > 0 ? 'rgba(220, 38, 127, 0.1)' : 'rgba(8, 150, 126, 0.1)'}; border-radius: 6px;">
+                                <div style="font-size: 12px; color: var(--text-gray);">Complaints</div>
+                                <div style="font-weight: 600; color: ${property.complaints > 0 ? '#dc267f' : 'var(--primary-color)'};">Manage (${property.complaints})</div>
+                            </div>
+                            <div style="flex: 1; text-align: center; padding: 8px; background: ${property.notices > 0 ? 'rgba(59, 130, 246, 0.1)' : 'rgba(8, 150, 126, 0.1)'}; border-radius: 6px;">
+                                <div style="font-size: 12px; color: var(--text-gray);">Notices</div>
+                                <div style="font-weight: 600; color: ${property.notices > 0 ? '#3b82f6' : 'var(--primary-color)'};">View (${property.notices})</div>
+                            </div>
+                            <div style="flex: 1; text-align: center; padding: 8px; background: rgba(8, 150, 126, 0.1); border-radius: 6px;">
+                                <div style="font-size: 12px; color: var(--text-gray);">Expenses</div>
+                                <div style="font-weight: 600; color: var(--primary-color);">${formatCurrency(property.expenses)}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 16px; text-align: center; font-size: 14px; color: var(--text-gray);">
+                            Click to manage this property
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadScheduledViewings() {
+            // Always show mock data for demonstration purposes
+            loadMockScheduledViewings();
+        }
+
+        function loadMockScheduledViewings() {
+            const mockViewings = [
+                {
+                    booking_id: 'booking1',
+                    property_id: 'prop1',
+                    property_name: 'Luxury Penthouse',
+                    location: 'Upper East Side, Manhattan',
+                    price: 3500,
+                    viewing_date: '2025-10-25T14:00:00',
+                    photos_urls: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400'],
+                    status: 'confirmed'
+                },
+                {
+                    booking_id: 'booking2',
+                    property_id: 'prop2',
+                    property_name: 'Waterfront Condo',
+                    location: 'Marina Bay, Waterfront',
+                    price: 2800,
+                    viewing_date: '2025-10-28T16:30:00',
+                    photos_urls: ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400'],
+                    status: 'confirmed'
+                },
+                {
+                    booking_id: 'booking3',
+                    property_id: 'prop3',
+                    property_name: 'Garden View Townhouse',
+                    location: 'Brooklyn Heights, Brooklyn',
+                    price: 2200,
+                    viewing_date: '2025-10-30T11:00:00',
+                    photos_urls: ['https://images.unsplash.com/photo-1494526585095-c41746248156?w=400'],
+                    status: 'confirmed'
+                },
+                {
+                    booking_id: 'booking4',
+                    property_id: 'prop4',
+                    property_name: 'Industrial Loft',
+                    location: 'SoHo, Downtown',
+                    price: 2950,
+                    viewing_date: '2025-11-02T15:00:00',
+                    photos_urls: ['https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400'],
+                    status: 'confirmed'
+                }
+            ];
+
+            const container = document.getElementById('scheduledViewings');
+            container.innerHTML = mockViewings.map(viewing => `
+                <div class="property-card">
+                    <div class="property-image" style="background-image: url('${viewing.photos_urls[0]}'); height: 160px; background-size: cover; background-position: center; position: relative;">
+                        <div style="position: absolute; top: 12px; right: 12px; background: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                            VIEWING SCHEDULED
+                        </div>
+                    </div>
+                    <div class="property-content">
+                        <div class="property-title">${viewing.property_name}</div>
+                        <div class="property-location">📍 ${viewing.location}</div>
+                        <div class="property-price">${formatCurrency(viewing.price)}/month</div>
+                        <div style="margin: 12px 0; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
+                            <div style="font-size: 14px; font-weight: 600; color: #3b82f6; margin-bottom: 4px;">📅 Viewing Scheduled</div>
+                            <div style="font-size: 14px; color: var(--text-dark);">${formatDate(viewing.viewing_date)} at ${new Date(viewing.viewing_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                        <div class="property-actions">
+                            <button class="btn-primary" onclick="viewPropertyDetails('${viewing.property_id}')">
+                                View Details
+                            </button>
+                            <button class="btn-secondary" onclick="cancelViewing('${viewing.booking_id}')">
+                                Cancel Viewing
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showUserSearchModal() {
+            document.getElementById('searchRequestModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('searchRequestModal').style.display = 'none';
+        }
+
+        // User search request form submission
+        document.getElementById('searchRequestForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                tenant_id: currentUser.id,
+                tenant_name: currentUser.name,
+                email: currentUser.email,
+                phone_number: currentUser.phone_number,
+                property_type_required: document.getElementById('propertyType').value,
+                location_preferred: document.getElementById('location').value,
+                price_range_min: parseFloat(document.getElementById('minPrice').value),
+                price_range_max: parseFloat(document.getElementById('maxPrice').value),
+                additional_requirements: document.getElementById('additionalInfo').value
+            };
+
+            const button = e.target.querySelector('button[type="submit"]');
+            const buttonText = button.querySelector('.button-text');
+            const loading = button.querySelector('.loading');
+
+            try {
+                button.disabled = true;
+                buttonText.classList.add('hidden');
+                loading.classList.remove('hidden');
+
+                await DatabaseManager.createLead(formData);
+                
+                showNotification('Search request submitted successfully!', 'success');
+                closeModal();
+                e.target.reset();
+
+            } catch (error) {
+                console.error('Error submitting search request:', error);
+                showNotification('Error submitting request. Please try again.', 'error');
+            } finally {
+                button.disabled = false;
+                buttonText.classList.remove('hidden');
+                loading.classList.add('hidden');
+            }
+        });
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        async function logout() {
+            await AuthManager.signOut();
+        }
+
+        function refreshViewings() {
+            loadScheduledViewings();
+            showNotification('Viewings refreshed', 'info');
+        }
+
+        function viewPropertyDetails(propertyId) {
+            window.location.href = `property-details.html?id=${propertyId}`;
+        }
+
+        function openPropertyManagement(propertyId) {
+            // Open property-specific management page
+            window.location.href = `property-management.html?id=${propertyId}`;
+        }
+
+        async function cancelViewing(bookingId) {
+            if (confirm('Are you sure you want to cancel this viewing?')) {
+                try {
+                    // Update booking status to cancelled
+                    await supabase
+                        .from('bookings')
+                        .update({ status: 'cancelled' })
+                        .eq('booking_id', bookingId);
+
+                    showNotification('Viewing cancelled successfully', 'success');
+                    loadScheduledViewings();
+                } catch (error) {
+                    console.error('Error cancelling viewing:', error);
+                    showNotification('Error cancelling viewing', 'error');
+                }
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('searchRequestModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

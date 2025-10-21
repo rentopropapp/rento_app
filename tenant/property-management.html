@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Management - Rento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="properties.html">Properties</a></li>
+                <li><a href="payments.html">Payments</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            
+            <div class="user-menu">
+                <img src="../assets/default-avatar.png" alt="Profile" class="user-avatar" id="userAvatar" onclick="toggleDropdown()">
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="profile.html" class="dropdown-item">Profile</a>
+                    <a href="#" class="dropdown-item" onclick="openAccountSwitcher()">Switch Account</a>
+                    <a href="#" class="dropdown-item logout-btn" onclick="logout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="dashboard.html" class="mobile-nav-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                </svg>
+                Dashboard
+            </a>
+            <a href="properties.html" class="mobile-nav-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
+                </svg>
+                Properties
+            </a>
+            <a href="payments.html" class="mobile-nav-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z"/>
+                </svg>
+                Payments
+            </a>
+            <a href="profile.html" class="mobile-nav-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                </svg>
+                Profile
+            </a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Back Navigation -->
+        <div style="margin-bottom: 20px;">
+            <button onclick="window.location.href='dashboard.html'" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/>
+                </svg>
+                Back to Dashboard
+            </button>
+        </div>
+
+        <!-- Property Header -->
+        <div id="propertyHeader" class="page-header">
+            <h1 class="page-title">Property Management</h1>
+            <p class="page-subtitle">Manage your rental property</p>
+        </div>
+
+        <!-- Property Information Card -->
+        <div id="propertyInfo" class="dashboard-card" style="margin-bottom: 32px;">
+            <div style="text-align: center; padding: 40px 20px;">
+                <div class="loading"></div>
+                <p style="margin-top: 16px; color: var(--text-gray);">Loading property information...</p>
+            </div>
+        </div>
+
+        <!-- Management Options Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 40px;">
+            <!-- Complaints Card -->
+            <div class="dashboard-card" onclick="showComplaintsSection()" style="text-align: center; padding: 40px 24px; cursor: pointer; transition: all 0.3s ease;">
+                <div style="width: 60px; height: 60px; background: rgba(220, 38, 127, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <svg width="24" height="24" fill="#dc267f" viewBox="0 0 20 20">
+                        <path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/>
+                    </svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text-dark); margin-bottom: 8px;">Complaints</h3>
+                <p style="color: var(--text-gray); font-size: 14px;">Submit and track property complaints</p>
+                <div id="complaintsCount" style="margin-top: 12px; font-size: 12px; color: var(--text-gray);">Loading...</div>
+            </div>
+
+            <!-- Notices Card -->
+            <div class="dashboard-card" onclick="showNoticesSection()" style="text-align: center; padding: 40px 24px; cursor: pointer; transition: all 0.3s ease;">
+                <div style="width: 60px; height: 60px; background: rgba(8, 150, 126, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <svg width="24" height="24" fill="var(--primary-color)" viewBox="0 0 20 20">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                    </svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text-dark); margin-bottom: 8px;">Notices</h3>
+                <p style="color: var(--text-gray); font-size: 14px;">View messages from property manager</p>
+                <div id="noticesCount" style="margin-top: 12px; font-size: 12px; color: var(--text-gray);">Loading...</div>
+            </div>
+
+            <!-- Expenses Card -->
+            <div class="dashboard-card" onclick="showExpensesSection()" style="text-align: center; padding: 40px 24px; cursor: pointer; transition: all 0.3s ease;">
+                <div style="width: 60px; height: 60px; background: rgba(59, 130, 246, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <svg width="24" height="24" fill="#3b82f6" viewBox="0 0 20 20">
+                        <path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z"/>
+                    </svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text-dark); margin-bottom: 8px;">Expenses</h3>
+                <p style="color: var(--text-gray); font-size: 14px;">Track your property-related expenses</p>
+                <div id="expensesTotal" style="margin-top: 12px; font-size: 12px; color: var(--text-gray);">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaints Modal -->
+    <div id="complaintsModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Property Complaints</h2>
+                <button class="modal-close" onclick="closeComplaintsModal()">&times;</button>
+            </div>
+            
+            <div style="margin-bottom: 24px;">
+                <button class="btn-primary" onclick="showNewComplaintForm()" style="width: 100%;">
+                    Submit New Complaint
+                </button>
+            </div>
+
+            <!-- New Complaint Form (hidden by default) -->
+            <div id="newComplaintForm" style="display: none; margin-bottom: 24px; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                <h3 style="margin-bottom: 16px; font-size: 1.125rem; font-weight: 600;">Submit New Complaint</h3>
+                <form id="complaintForm">
+                    <div class="form-group">
+                        <label for="complaintType" class="form-label">Complaint Type</label>
+                        <select id="complaintType" class="form-select" required>
+                            <option value="">Select type</option>
+                            <option value="maintenance">Maintenance Issue</option>
+                            <option value="noise">Noise Complaint</option>
+                            <option value="utilities">Utilities Problem</option>
+                            <option value="security">Security Concern</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="complaintTitle" class="form-label">Title</label>
+                        <input type="text" id="complaintTitle" class="form-input" required placeholder="Brief description of the issue">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="complaintDescription" class="form-label">Detailed Description</label>
+                        <textarea id="complaintDescription" class="form-textarea" rows="4" required placeholder="Please provide detailed information about the issue..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="complaintUrgency" class="form-label">Urgency Level</label>
+                        <select id="complaintUrgency" class="form-select" required>
+                            <option value="">Select urgency</option>
+                            <option value="low">Low - Can wait</option>
+                            <option value="medium">Medium - Needs attention soon</option>
+                            <option value="high">High - Urgent</option>
+                            <option value="emergency">Emergency - Immediate attention required</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 12px;">
+                        <button type="submit" class="form-button" style="flex: 1;">
+                            <span class="button-text">Submit Complaint</span>
+                            <span class="loading hidden">Submitting...</span>
+                        </button>
+                        <button type="button" onclick="hideNewComplaintForm()" class="btn-secondary" style="flex: 1;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Existing Complaints List -->
+            <div id="complaintsList">
+                <h3 style="margin-bottom: 16px; font-size: 1.125rem; font-weight: 600;">Your Complaints</h3>
+                <div id="complaintsContent">
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div class="loading"></div>
+                        <p style="margin-top: 16px; color: var(--text-gray);">Loading complaints...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notices Modal -->
+    <div id="noticesModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Property Notices</h2>
+                <button class="modal-close" onclick="closeNoticesModal()">&times;</button>
+            </div>
+            
+            <div id="noticesContent">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <div class="loading"></div>
+                    <p style="margin-top: 16px; color: var(--text-gray);">Loading notices...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expenses Modal -->
+    <div id="expensesModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Property Expenses</h2>
+                <button class="modal-close" onclick="closeExpensesModal()">&times;</button>
+            </div>
+            
+            <div style="margin-bottom: 24px;">
+                <button class="btn-primary" onclick="showNewExpenseForm()" style="width: 100%;">
+                    Add New Expense
+                </button>
+            </div>
+
+            <!-- New Expense Form (hidden by default) -->
+            <div id="newExpenseForm" style="display: none; margin-bottom: 24px; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                <h3 style="margin-bottom: 16px; font-size: 1.125rem; font-weight: 600;">Add New Expense</h3>
+                <form id="expenseForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="expenseCategory" class="form-label">Category</label>
+                            <select id="expenseCategory" class="form-select" required>
+                                <option value="">Select category</option>
+                                <option value="utilities">Utilities</option>
+                                <option value="maintenance">Maintenance & Repairs</option>
+                                <option value="groceries">Groceries</option>
+                                <option value="transportation">Transportation</option>
+                                <option value="furnishing">Furnishing</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="expenseAmount" class="form-label">Amount</label>
+                            <input type="number" id="expenseAmount" class="form-input" required min="0" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expenseDescription" class="form-label">Description</label>
+                        <input type="text" id="expenseDescription" class="form-input" required placeholder="What was this expense for?">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expenseDate" class="form-label">Date</label>
+                        <input type="date" id="expenseDate" class="form-input" required>
+                    </div>
+
+                    <div style="display: flex; gap: 12px;">
+                        <button type="submit" class="form-button" style="flex: 1;">
+                            <span class="button-text">Add Expense</span>
+                            <span class="loading hidden">Adding...</span>
+                        </button>
+                        <button type="button" onclick="hideNewExpenseForm()" class="btn-secondary" style="flex: 1;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Expenses List -->
+            <div id="expensesList">
+                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="font-size: 1.125rem; font-weight: 600;">Your Expenses</h3>
+                    <div id="expensesSummary" style="font-weight: 600; color: var(--primary-color);"></div>
+                </div>
+                <div id="expensesContent">
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div class="loading"></div>
+                        <p style="margin-top: 16px; color: var(--text-gray);">Loading expenses...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUser = null;
+        let currentProperty = null;
+        let propertyId = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                currentUser = AuthManager.getCurrentUser();
+                if (!currentUser) {
+                    window.location.href = '../auth/login.html';
+                    return;
+                }
+
+                // Get property ID from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                propertyId = urlParams.get('id');
+
+                if (!propertyId) {
+                    showNotification('No property selected', 'error');
+                    setTimeout(() => window.location.href = 'dashboard.html', 2000);
+                    return;
+                }
+
+                // Update user avatar with profile photo or initials
+                updateUserAvatar(currentUser);
+
+                // Set today as default date for expenses
+                document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+
+                // Load property information and data
+                await loadPropertyInfo();
+                await loadCounts();
+
+            } catch (error) {
+                console.error('Error initializing property management:', error);
+                showNotification('Error loading property data', 'error');
+            }
+        });
+
+        // Update avatar when user switches accounts (listen for storage changes)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'user') {
+                const newUser = e.newValue ? JSON.parse(e.newValue) : null;
+                if (newUser) {
+                    currentUser = newUser;
+                    updateUserAvatar(currentUser);
+                }
+            }
+        });
+
+        async function loadPropertyInfo() {
+            try {
+                if (propertyId === 'demo1') {
+                    // Demo property
+                    currentProperty = {
+                        property_id: 'demo1',
+                        property_name: 'Downtown Apartment',
+                        location: 'Downtown, City Center',
+                        price: 1500,
+                        photos_urls: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400']
+                    };
+                } else {
+                    // Get actual property from database
+                    const properties = await DatabaseManager.getProperties();
+                    currentProperty = properties.find(p => p.property_id === propertyId);
+                }
+
+                if (!currentProperty) {
+                    throw new Error('Property not found');
+                }
+
+                // Update page header
+                document.querySelector('.page-title').textContent = currentProperty.property_name;
+                document.querySelector('.page-subtitle').textContent = `Manage your rental at ${currentProperty.location}`;
+
+                // Update property info card
+                document.getElementById('propertyInfo').innerHTML = `
+                    <div style="display: flex; gap: 20px; align-items: center;">
+                        <div style="width: 120px; height: 120px; background-image: url('${currentProperty.photos_urls?.[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400'}'); background-size: cover; background-position: center; border-radius: 8px; flex-shrink: 0;"></div>
+                        <div style="flex: 1;">
+                            <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--text-dark); margin-bottom: 8px;">${currentProperty.property_name}</h2>
+                            <div style="color: var(--text-gray); margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+                                📍 ${currentProperty.location}
+                            </div>
+                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color);">${formatCurrency(currentProperty.price)}/month</div>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Error loading property info:', error);
+                document.getElementById('propertyInfo').innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <p style="color: var(--secondary-color);">Error loading property information</p>
+                        <button onclick="window.location.href='dashboard.html'" class="btn-primary" style="margin-top: 16px;">Return to Dashboard</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadCounts() {
+            try {
+                // Load complaints count
+                const complaints = await DatabaseManager.getComplaints({ 
+                    tenant_id: currentUser.id, 
+                    property_id: propertyId 
+                });
+                const pendingComplaints = complaints?.filter(c => c.status === 'open').length || 0;
+                document.getElementById('complaintsCount').textContent = `${complaints?.length || 0} total (${pendingComplaints} pending)`;
+
+                // Load notices count
+                const notices = await DatabaseManager.getNotices({ 
+                    tenant_id: currentUser.id, 
+                    property_id: propertyId 
+                });
+                const unreadNotices = notices?.filter(n => !n.read_status).length || 0;
+                document.getElementById('noticesCount').textContent = `${notices?.length || 0} total (${unreadNotices} unread)`;
+
+                // Load expenses total
+                const expenses = await DatabaseManager.getExpenses({ 
+                    tenant_id: currentUser.id, 
+                    property_id: propertyId 
+                });
+                const totalExpenses = expenses?.reduce((sum, exp) => sum + (parseFloat(exp.amount) || 0), 0) || 0;
+                document.getElementById('expensesTotal').textContent = `Total: ${formatCurrency(totalExpenses)}`;
+
+            } catch (error) {
+                console.error('Error loading counts:', error);
+                // Load mock data for demonstration
+                loadMockCounts();
+            }
+        }
+
+        function loadMockCounts() {
+            const mockData = {
+                'demo1': { complaints: 2, notices: 3, expenses: 567.85 },
+                'demo2': { complaints: 0, notices: 1, expenses: 234.50 },
+                'demo3': { complaints: 1, notices: 2, expenses: 1205.30 }
+            };
+            
+            const data = mockData[propertyId] || mockData['demo1'];
+            const pendingComplaints = propertyId === 'demo1' ? 1 : propertyId === 'demo3' ? 1 : 0;
+            const unreadNotices = propertyId === 'demo1' ? 2 : propertyId === 'demo3' ? 1 : 0;
+            
+            document.getElementById('complaintsCount').textContent = `${data.complaints} total (${pendingComplaints} pending)`;
+            document.getElementById('noticesCount').textContent = `${data.notices} total (${unreadNotices} unread)`;
+            document.getElementById('expensesTotal').textContent = `Total: ${formatCurrency(data.expenses)}`;
+        }
+
+        // Complaints functionality
+        function showComplaintsSection() {
+            document.getElementById('complaintsModal').style.display = 'flex';
+            loadComplaints();
+        }
+
+        function closeComplaintsModal() {
+            document.getElementById('complaintsModal').style.display = 'none';
+            hideNewComplaintForm();
+        }
+
+        function showNewComplaintForm() {
+            document.getElementById('newComplaintForm').style.display = 'block';
+        }
+
+        function hideNewComplaintForm() {
+            document.getElementById('newComplaintForm').style.display = 'none';
+            document.getElementById('complaintForm').reset();
+        }
+
+        async function loadComplaints() {
+            try {
+                const complaints = await DatabaseManager.getComplaints({ 
+                    tenant_id: currentUser.id, 
+                    property_id: propertyId 
+                });
+
+                const container = document.getElementById('complaintsContent');
+                
+                if (complaints && complaints.length > 0) {
+                    container.innerHTML = complaints.map(complaint => `
+                        <div class="property-card" style="margin-bottom: 16px;">
+                            <div class="property-content">
+                                <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 12px;">
+                                    <div>
+                                        <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 4px;">${complaint.title}</h4>
+                                        <div style="font-size: 12px; color: var(--text-gray);">${formatDate(complaint.created_at)}</div>
+                                    </div>
+                                    <div style="padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; 
+                                        background: ${complaint.status === 'open' ? '#fee2e2' : complaint.status === 'in_progress' ? '#fef3c7' : '#d1fae5'};
+                                        color: ${complaint.status === 'open' ? '#991b1b' : complaint.status === 'in_progress' ? '#92400e' : '#065f46'};">
+                                        ${complaint.status.replace('_', ' ').toUpperCase()}
+                                    </div>
+                                </div>
+                                <p style="color: var(--text-gray); font-size: 14px; margin-bottom: 8px;">${complaint.description}</p>
+                                <div style="display: flex; gap: 12px; font-size: 12px;">
+                                    <span style="padding: 2px 6px; background: rgba(8, 150, 126, 0.1); border-radius: 4px; color: var(--primary-color);">
+                                        ${complaint.category}
+                                    </span>
+                                    <span style="padding: 2px 6px; background: rgba(59, 130, 246, 0.1); border-radius: 4px; color: #3b82f6;">
+                                        ${complaint.urgency} priority
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    loadMockComplaints();
+                }
+            } catch (error) {
+                console.error('Error loading complaints:', error);
+                loadMockComplaints();
+            }
+        }
+
+        function loadMockComplaints() {
+            const mockComplaints = {
+                'demo1': [
+                    {
+                        complaint_id: 'comp1',
+                        title: 'Heating System Not Working',
+                        description: 'The heating system in the apartment has been malfunctioning for the past 3 days. The temperature is very low and uncomfortable.',
+                        category: 'maintenance',
+                        urgency: 'high',
+                        status: 'open',
+                        created_at: '2025-10-15T10:30:00Z'
+                    },
+                    {
+                        complaint_id: 'comp2',
+                        title: 'Loud Music from Neighbors',
+                        description: 'The neighbors in apartment 4B are playing loud music every night after 11 PM, which is disturbing my sleep.',
+                        category: 'noise',
+                        urgency: 'medium',
+                        status: 'resolved',
+                        created_at: '2025-10-10T22:15:00Z'
+                    }
+                ],
+                'demo2': [],
+                'demo3': [
+                    {
+                        complaint_id: 'comp3',
+                        title: 'Water Pressure Issues',
+                        description: 'The water pressure in the kitchen and bathroom is very low, making it difficult to use.',
+                        category: 'utilities',
+                        urgency: 'medium',
+                        status: 'in_progress',
+                        created_at: '2025-10-12T14:45:00Z'
+                    }
+                ]
+            };
+
+            const complaints = mockComplaints[propertyId] || [];
+            const container = document.getElementById('complaintsContent');
+            
+            if (complaints.length > 0) {
+                container.innerHTML = complaints.map(complaint => `
+                    <div class="property-card" style="margin-bottom: 16px;">
+                        <div class="property-content">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                                <div>
+                                    <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 4px;">${complaint.title}</h4>
+                                    <div style="font-size: 12px; color: var(--text-gray);">${formatDate(complaint.created_at)}</div>
+                                </div>
+                                <div style="padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; 
+                                    background: ${complaint.status === 'open' ? '#fee2e2' : complaint.status === 'in_progress' ? '#fef3c7' : '#d1fae5'};
+                                    color: ${complaint.status === 'open' ? '#991b1b' : complaint.status === 'in_progress' ? '#92400e' : '#065f46'};">
+                                    ${complaint.status.replace('_', ' ').toUpperCase()}
+                                </div>
+                            </div>
+                            <p style="color: var(--text-gray); font-size: 14px; margin-bottom: 8px;">${complaint.description}</p>
+                            <div style="display: flex; gap: 12px; font-size: 12px;">
+                                <span style="padding: 2px 6px; background: rgba(8, 150, 126, 0.1); border-radius: 4px; color: var(--primary-color);">
+                                    ${complaint.category}
+                                </span>
+                                <span style="padding: 2px 6px; background: rgba(59, 130, 246, 0.1); border-radius: 4px; color: #3b82f6;">
+                                    ${complaint.urgency} priority
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: var(--text-gray);">
+                        No complaints submitted yet.
+                    </div>
+                `;
+            }
+        }
+
+        // Submit new complaint
+        document.getElementById('complaintForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                tenant_id: currentUser.id,
+                property_id: propertyId,
+                title: document.getElementById('complaintTitle').value,
+                description: document.getElementById('complaintDescription').value,
+                category: document.getElementById('complaintType').value,
+                urgency: document.getElementById('complaintUrgency').value,
+                status: 'open'
+            };
+
+            const button = e.target.querySelector('button[type="submit"]');
+            const buttonText = button.querySelector('.button-text');
+            const loading = button.querySelector('.loading');
+
+            try {
+                button.disabled = true;
+                buttonText.classList.add('hidden');
+                loading.classList.remove('hidden');
+
+                await DatabaseManager.createComplaint(formData);
+                
+                showNotification('Complaint submitted successfully!', 'success');
+                hideNewComplaintForm();
+                loadComplaints();
+                loadCounts();
+
+            } catch (error) {
+                console.error('Error submitting complaint:', error);
+                showNotification('Error submitting complaint. Please try again.', 'error');
+            } finally {
+                button.disabled = false;
+                buttonText.classList.remove('hidden');
+                loading.classList.add('hidden');
+            }
+        });
+
+        // Notices functionality
+        function showNoticesSection() {
+            document.getElementById('noticesModal').style.display = 'flex';
+            loadNotices();
+        }
+
+        function closeNoticesModal() {
+            document.getElementById('noticesModal').style.display = 'none';
+        }
+
+        async function loadNotices() {
+            try {
+                const notices = await DatabaseManager.getNotices({ 
+                    tenant_id: currentUser.id, 
+                    property_id: propertyId 
+                });
+
+                const container = document.getElementById('noticesContent');
+                
+                if (notices && notices.length > 0) {
+                    container.innerHTML = notices.map(notice => `
+                        <div class="property-card" style="margin-bottom: 16px;">
+                            <div class="property-content">
+                                <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 12px;">
+                                    <div>
+                                        <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 4px;">${notice.title || 'Notice'}</h4>
+                                        <div style="font-size: 12px; color: var(--text-gray);">${formatDate(notice.created_at)} • From: ${notice.users?.name || 'Property Manager'}</div>
+                                    </div>
+                                    ${!notice.read_status ? '<div style="width: 8px; height: 8px; background: var(--primary-color); border-radius: 50%;"></div>' : ''}
+                                </div>
+                                <p style="color: var(--text-gray); font-size: 14px;">${notice.message}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    loadMockNotices();
+                }
+            } catch (error) {
+                console.error('Error loading notices:', error);
+                loadMockNotices();
+            }
+        }
+
+        function loadMockNotices() {
+            const mockNotices = {
+                'demo1': [
+                    {
+                        notice_id: 'notice1',
+                        title: 'Monthly Rent Reminder',
+                        message: 'This is a friendly reminder that your rent payment for November is due on the 1st of the month. Please ensure payment is made on time to avoid late fees.',
+                        created_at: '2025-10-18T09:00:00Z',
+                        read_status: false,
+                        from_user: 'Property Manager Sarah'
+                    },
+                    {
+                        notice_id: 'notice2',
+                        title: 'Building Maintenance Schedule',
+                        message: 'We will be conducting routine maintenance on the building\'s water system on October 25th from 9 AM to 3 PM. Water service may be temporarily interrupted.',
+                        created_at: '2025-10-16T14:30:00Z',
+                        read_status: false,
+                        from_user: 'Maintenance Team'
+                    },
+                    {
+                        notice_id: 'notice3',
+                        title: 'New Parking Policy',
+                        message: 'Starting November 1st, all residents must register their vehicles with the front desk. Parking passes will be issued and must be displayed on the dashboard.',
+                        created_at: '2025-10-14T16:45:00Z',
+                        read_status: true,
+                        from_user: 'Building Management'
+                    }
+                ],
+                'demo2': [
+                    {
+                        notice_id: 'notice4',
+                        title: 'Welcome to Your New Home!',
+                        message: 'Welcome to Midtown Arts District! We\'re excited to have you as our tenant. Please don\'t hesitate to reach out if you have any questions or concerns.',
+                        created_at: '2025-10-17T11:00:00Z',
+                        read_status: true,
+                        from_user: 'Property Manager Mike'
+                    }
+                ],
+                'demo3': [
+                    {
+                        notice_id: 'notice5',
+                        title: 'Landscaping Work Notice',
+                        message: 'We will be doing landscaping work around the property from October 22-24. There may be some noise during daytime hours. We apologize for any inconvenience.',
+                        created_at: '2025-10-19T08:30:00Z',
+                        read_status: false,
+                        from_user: 'Property Manager Lisa'
+                    },
+                    {
+                        notice_id: 'notice6',
+                        title: 'Holiday Office Hours',
+                        message: 'Please note that our management office will have reduced hours during the upcoming holidays. Emergency contact information is available on our website.',
+                        created_at: '2025-10-15T13:20:00Z',
+                        read_status: true,
+                        from_user: 'Office Administration'
+                    }
+                ]
+            };
+
+            const notices = mockNotices[propertyId] || [];
+            const container = document.getElementById('noticesContent');
+            
+            if (notices.length > 0) {
+                container.innerHTML = notices.map(notice => `
+                    <div class="property-card" style="margin-bottom: 16px;">
+                        <div class="property-content">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                                <div>
+                                    <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 4px;">${notice.title}</h4>
+                                    <div style="font-size: 12px; color: var(--text-gray);">${formatDate(notice.created_at)} • From: ${notice.from_user}</div>
+                                </div>
+                                ${!notice.read_status ? '<div style="width: 8px; height: 8px; background: var(--primary-color); border-radius: 50%;"></div>' : ''}
+                            </div>
+                            <p style="color: var(--text-gray); font-size: 14px;">${notice.message}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: var(--text-gray);">
+                        No notices available.
+                    </div>
+                `;
+            }
+        }
+
+        // Expenses functionality
+        function showExpensesSection() {
+            document.getElementById('expensesModal').style.display = 'flex';
+            loadExpenses();
+        }
+
+        function closeExpensesModal() {
+            document.getElementById('expensesModal').style.display = 'none';
+            hideNewExpenseForm();
+        }
+
+        function showNewExpenseForm() {
+            document.getElementById('newExpenseForm').style.display = 'block';
+        }
+
+        function hideNewExpenseForm() {
+            document.getElementById('newExpenseForm').style.display = 'none';
+            document.getElementById('expenseForm').reset();
+            document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        async function loadExpenses() {
+            try {
+                const expenses = await DatabaseManager.getExpenses({ 
+                    tenant_id: currentUser.id, 
+                    property_id: propertyId 
+                });
+
+                const container = document.getElementById('expensesContent');
+                
+                if (expenses && expenses.length > 0) {
+                    const totalAmount = expenses.reduce((sum, exp) => sum + (parseFloat(exp.amount) || 0), 0);
+                    document.getElementById('expensesSummary').textContent = `Total: ${formatCurrency(totalAmount)}`;
+
+                    container.innerHTML = expenses.map(expense => `
+                        <div class="property-card" style="margin-bottom: 16px;">
+                            <div class="property-content">
+                                <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 8px;">
+                                    <div>
+                                        <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 4px;">${expense.description}</h4>
+                                        <div style="font-size: 12px; color: var(--text-gray);">${formatDate(expense.expense_date)} • ${expense.category}</div>
+                                    </div>
+                                    <div style="font-weight: 600; color: var(--primary-color);">${formatCurrency(expense.amount)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    loadMockExpenses();
+                }
+            } catch (error) {
+                console.error('Error loading expenses:', error);
+                loadMockExpenses();
+            }
+        }
+
+        function loadMockExpenses() {
+            const mockExpenses = {
+                'demo1': [
+                    {
+                        expense_id: 'exp1',
+                        description: 'Electricity Bill - October',
+                        amount: 89.50,
+                        category: 'utilities',
+                        expense_date: '2025-10-15'
+                    },
+                    {
+                        expense_id: 'exp2',
+                        description: 'Internet Service',
+                        amount: 65.99,
+                        category: 'utilities',
+                        expense_date: '2025-10-10'
+                    },
+                    {
+                        expense_id: 'exp3',
+                        description: 'Grocery Shopping',
+                        amount: 156.78,
+                        category: 'groceries',
+                        expense_date: '2025-10-12'
+                    },
+                    {
+                        expense_id: 'exp4',
+                        description: 'New Curtains',
+                        amount: 145.50,
+                        category: 'furnishing',
+                        expense_date: '2025-10-08'
+                    },
+                    {
+                        expense_id: 'exp5',
+                        description: 'Plumber Service Call',
+                        amount: 110.08,
+                        category: 'maintenance',
+                        expense_date: '2025-10-05'
+                    }
+                ],
+                'demo2': [
+                    {
+                        expense_id: 'exp6',
+                        description: 'Gas Bill',
+                        amount: 45.30,
+                        category: 'utilities',
+                        expense_date: '2025-10-14'
+                    },
+                    {
+                        expense_id: 'exp7',
+                        description: 'Weekly Groceries',
+                        amount: 189.20,
+                        category: 'groceries',
+                        expense_date: '2025-10-13'
+                    }
+                ],
+                'demo3': [
+                    {
+                        expense_id: 'exp8',
+                        description: 'Lawn Care Service',
+                        amount: 125.00,
+                        category: 'maintenance',
+                        expense_date: '2025-10-16'
+                    },
+                    {
+                        expense_id: 'exp9',
+                        description: 'Electric Bill - October',
+                        amount: 198.45,
+                        category: 'utilities',
+                        expense_date: '2025-10-15'
+                    },
+                    {
+                        expense_id: 'exp10',
+                        description: 'Home Security System',
+                        amount: 89.99,
+                        category: 'utilities',
+                        expense_date: '2025-10-10'
+                    },
+                    {
+                        expense_id: 'exp11',
+                        description: 'Family Groceries',
+                        amount: 287.65,
+                        category: 'groceries',
+                        expense_date: '2025-10-12'
+                    },
+                    {
+                        expense_id: 'exp12',
+                        description: 'Living Room Furniture',
+                        amount: 504.21,
+                        category: 'furnishing',
+                        expense_date: '2025-10-08'
+                    }
+                ]
+            };
+
+            const expenses = mockExpenses[propertyId] || [];
+            const container = document.getElementById('expensesContent');
+            
+            if (expenses.length > 0) {
+                const totalAmount = expenses.reduce((sum, exp) => sum + (parseFloat(exp.amount) || 0), 0);
+                document.getElementById('expensesSummary').textContent = `Total: ${formatCurrency(totalAmount)}`;
+
+                container.innerHTML = expenses.map(expense => `
+                    <div class="property-card" style="margin-bottom: 16px;">
+                        <div class="property-content">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                <div>
+                                    <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 4px;">${expense.description}</h4>
+                                    <div style="font-size: 12px; color: var(--text-gray);">${formatDate(expense.expense_date)} • ${expense.category}</div>
+                                </div>
+                                <div style="font-weight: 600; color: var(--primary-color);">${formatCurrency(expense.amount)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: var(--text-gray);">
+                        No expenses recorded yet.
+                    </div>
+                `;
+                document.getElementById('expensesSummary').textContent = 'Total: $0.00';
+            }
+        }
+
+        // Submit new expense
+        document.getElementById('expenseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                tenant_id: currentUser.id,
+                property_id: propertyId,
+                category: document.getElementById('expenseCategory').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                description: document.getElementById('expenseDescription').value,
+                expense_date: document.getElementById('expenseDate').value
+            };
+
+            const button = e.target.querySelector('button[type="submit"]');
+            const buttonText = button.querySelector('.button-text');
+            const loading = button.querySelector('.loading');
+
+            try {
+                button.disabled = true;
+                buttonText.classList.add('hidden');
+                loading.classList.remove('hidden');
+
+                await DatabaseManager.createExpense(formData);
+                
+                showNotification('Expense added successfully!', 'success');
+                hideNewExpenseForm();
+                loadExpenses();
+                loadCounts();
+
+            } catch (error) {
+                console.error('Error adding expense:', error);
+                showNotification('Error adding expense. Please try again.', 'error');
+            } finally {
+                button.disabled = false;
+                buttonText.classList.remove('hidden');
+                loading.classList.add('hidden');
+            }
+        });
+
+        // Utility functions
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        async function logout() {
+            await AuthManager.signOut();
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        });
+
+        // Close modals when clicking outside
+        ['complaintsModal', 'noticesModal', 'expensesModal'].forEach(modalId => {
+            document.getElementById(modalId).addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                    if (modalId === 'complaintsModal') hideNewComplaintForm();
+                    if (modalId === 'expensesModal') hideNewExpenseForm();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

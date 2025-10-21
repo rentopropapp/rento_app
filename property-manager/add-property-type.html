@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Property Type | Rento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .step-container {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .step-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .step-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+
+        .step-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-gray);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 100px;
+            left: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .back-button:hover {
+            color: var(--primary-color);
+        }
+
+        .property-types-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            max-width: 900px;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+
+        .property-type-option {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .property-type-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(8, 150, 126, 0.15);
+        }
+
+        .property-type-option.selected {
+            border-color: var(--primary-color);
+            background: rgba(8, 150, 126, 0.05);
+        }
+
+        .property-type-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .property-type-option.selected .property-type-icon {
+            background: var(--primary-color);
+        }
+
+        .property-type-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .continue-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .continue-button.enabled {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .continue-button.enabled:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(8, 150, 126, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .property-types-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .step-title {
+                font-size: 1.5rem;
+            }
+
+            .back-button {
+                top: 80px;
+                left: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            
+            <div class="user-menu">
+                <div style="background: var(--primary-color); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="toggleDropdown()" id="userInitials">PM</div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="profile.html" class="dropdown-item">Profile</a>
+                    <a href="#" class="dropdown-item">Switch Account</a>
+                    <a href="#" class="dropdown-item logout-btn" onclick="logout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <a href="home.html" class="back-button">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd"/>
+        </svg>
+        Back
+    </a>
+
+    <div class="step-container">
+        <div class="step-header">
+            <h1 class="step-title">Which of these best describes your property?</h1>
+        </div>
+
+        <div class="property-types-grid" id="propertyTypesGrid">
+            <!-- Property types will be loaded here -->
+        </div>
+
+        <button class="continue-button" id="continueButton" onclick="continueToNextStep()">
+            Continue to Details
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUser = null;
+        let selectedPropertyType = null;
+
+        const propertyTypes = [
+            { id: 'flat_apartment', name: 'Flat/Apartment', icon: '🏠' },
+            { id: 'student_housing', name: 'Student Housing', icon: '🎓' },
+            { id: 'family_home', name: 'Family Home', icon: '🏡' },
+            { id: 'retail_units', name: 'Retail Units', icon: '🏪' },
+            { id: 'vacation_home', name: 'Vacation Home', icon: '🏖️' },
+            { id: 'bungalows', name: 'Bungalows', icon: '🏘️' },
+            { id: 'town_house', name: 'Town House', icon: '🏘️' },
+            { id: 'mansion', name: 'Mansion', icon: '🏰' },
+            { id: 'office_space', name: 'Office Space', icon: '🏢' },
+            { id: 'airbnb', name: 'Airbnb', icon: '🛏️' },
+            { id: 'commercial_building', name: 'Commercial Building', icon: '🏬' },
+            { id: 'party_venue', name: 'Party Venue', icon: '🎉' },
+            { id: 'warehouses', name: 'Warehouses', icon: '🏭' },
+            { id: 'schools', name: 'Schools', icon: '🏫' },
+            { id: 'hospitals', name: 'Hospitals', icon: '🏥' },
+            { id: 'religious', name: 'Religious', icon: '⛪' }
+        ];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = AuthManager.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = '../auth/login.html';
+                return;
+            }
+
+            if (currentUser.role !== 'property_manager') {
+                window.location.href = '../auth/login.html';
+                return;
+            }
+
+            // Update user initials
+            if (currentUser.name) {
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('userInitials').textContent = initials;
+            }
+
+            renderPropertyTypes();
+        });
+
+        function renderPropertyTypes() {
+            const grid = document.getElementById('propertyTypesGrid');
+            grid.innerHTML = '';
+
+            propertyTypes.forEach(type => {
+                const option = document.createElement('div');
+                option.className = 'property-type-option';
+                option.onclick = () => selectPropertyType(type.id);
+
+                option.innerHTML = `
+                    <div class="property-type-icon">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-9 9a1 1 0 001.414 1.414L2 12.414V17a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1v-4.586l.293.293a1 1 0 001.414-1.414l-9-9z"/>
+                        </svg>
+                    </div>
+                    <div class="property-type-name">${type.name}</div>
+                `;
+
+                grid.appendChild(option);
+            });
+        }
+
+        function selectPropertyType(typeId) {
+            // Remove previous selection
+            document.querySelectorAll('.property-type-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            // Add selection to clicked option
+            event.currentTarget.classList.add('selected');
+            selectedPropertyType = typeId;
+
+            // Enable continue button
+            const continueButton = document.getElementById('continueButton');
+            continueButton.classList.add('enabled');
+        }
+
+        function continueToNextStep() {
+            if (!selectedPropertyType) return;
+
+            // Store selected property type
+            sessionStorage.setItem('selectedPropertyType', selectedPropertyType);
+            
+            // Navigate to step 2
+            window.location.href = 'add-property-details.html';
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        async function logout() {
+            await AuthManager.signOut();
+        }
+
+        // Event listeners
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

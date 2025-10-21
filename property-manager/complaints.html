@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaints | Rento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .complaints-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .back-btn {
+            background: white;
+            color: var(--text-gray);
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #f8fafc;
+            color: var(--text-dark);
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .filters-section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 24px;
+        }
+
+        .filters-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: white;
+        }
+
+        .complaints-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .complaint-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border-left: 4px solid;
+            transition: all 0.2s ease;
+        }
+
+        .complaint-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .complaint-card.pending {
+            border-left-color: #f59e0b;
+        }
+
+        .complaint-card.in-progress {
+            border-left-color: #3b82f6;
+        }
+
+        .complaint-card.resolved {
+            border-left-color: #10b981;
+        }
+
+        .complaint-card.rejected {
+            border-left-color: #ef4444;
+        }
+
+        .complaint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .complaint-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0 0 8px 0;
+        }
+
+        .complaint-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 0.875rem;
+            color: var(--text-gray);
+            margin-bottom: 12px;
+        }
+
+        .complaint-description {
+            color: var(--text-dark);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-in-progress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-resolved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .complaint-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: var(--text-gray);
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: #f8fafc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--text-gray);
+        }
+
+        .empty-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .empty-description {
+            color: var(--text-gray);
+            font-size: 1rem;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 16px 0;
+            z-index: 100;
+        }
+
+        .nav-items {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            gap: 40px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-gray);
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .complaints-container {
+                padding: 16px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .filters-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .complaint-actions {
+                flex-wrap: wrap;
+            }
+
+            .nav-items {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            
+            <div class="user-menu">
+                <div style="background: var(--primary-color); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="toggleDropdown()" id="userInitials">PM</div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="profile.html" class="dropdown-item">Profile</a>
+                    <a href="#" class="dropdown-item">Switch Account</a>
+                    <a href="#" class="dropdown-item logout-btn" onclick="logout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="complaints-container" style="margin-bottom: 100px;">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Complaints</h1>
+                <p style="color: var(--text-gray); margin: 8px 0 0 0;">Managing complaints for <span id="propertyName">Hillview Apartment</span></p>
+            </div>
+            <a href="property-dashboard.html" class="back-btn" id="backBtn">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd"/>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select class="filter-select" id="statusFilter" onchange="filterComplaints()">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Priority</label>
+                    <select class="filter-select" id="priorityFilter" onchange="filterComplaints()">
+                        <option value="all">All Priority</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Category</label>
+                    <select class="filter-select" id="categoryFilter" onchange="filterComplaints()">
+                        <option value="all">All Categories</option>
+                        <option value="plumbing">Plumbing</option>
+                        <option value="electrical">Electrical</option>
+                        <option value="hvac">HVAC</option>
+                        <option value="noise">Noise</option>
+                        <option value="maintenance">General Maintenance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Complaints List -->
+        <div class="complaints-grid" id="complaintsGrid">
+            <!-- Complaints will be loaded here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-icon">
+                <svg width="40" height="40" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/>
+                </svg>
+            </div>
+            <h2 class="empty-title">No Complaints Found</h2>
+            <p class="empty-description">Great news! There are no complaints matching your current filters.</p>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-items">
+            <a id="dashboardNav" href="property-dashboard.html" class="nav-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-9 9a1 1 0 001.414 1.414L2 12.414V17a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1v-4.586l.293.293a1 1 0 001.414-1.414l-9-9z"/>
+                </svg>
+                Dashboard
+            </a>
+            <a href="#" class="nav-item" onclick="navigateToTenants()">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
+                </svg>
+                Tenants
+            </a>
+            <a href="#" class="nav-item" onclick="navigateToBookings()">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd"/>
+                </svg>
+                Bookings
+            </a>
+            <a href="profile.html" class="nav-item">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd"/>
+                </svg>
+                Profile
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUser = null;
+        let selectedProperty = null;
+        let allComplaints = [];
+        let filteredComplaints = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = AuthManager.getCurrentUser() || {
+                email: 'test@propertymanager.com',
+                name: 'Property Manager',
+                role: 'property_manager'
+            };
+
+            // Update user initials
+            if (currentUser.name) {
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('userInitials').textContent = initials;
+            }
+
+            loadPropertyComplaints();
+        });
+
+        function loadPropertyComplaints() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const propertyId = urlParams.get('property') || localStorage.getItem('selectedPropertyId');
+            
+            if (!propertyId) {
+                window.location.href = 'property-dashboard.html';
+                return;
+            }
+
+            // Update back button and dashboard nav
+            const backBtn = document.getElementById('backBtn');
+            backBtn.href = `property-dashboard.html?id=${propertyId}`;
+            const dashLink = document.getElementById('dashboardNav');
+            if (dashLink) dashLink.href = `property-dashboard.html?id=${propertyId}`;
+
+            // Load mock complaints data for the specific property
+            allComplaints = [
+                {
+                    id: 'complaint1',
+                    title: 'Leaking Bathroom Faucet',
+                    description: 'The bathroom faucet in unit A2 has been leaking for the past week. Water is dripping constantly and creating puddles on the floor. This is causing water damage and needs immediate attention.',
+                    category: 'plumbing',
+                    priority: 'high',
+                    status: 'pending',
+                    tenantName: 'Sarah Johnson',
+                    tenantUnit: 'A2',
+                    dateReported: '2024-10-15',
+                    lastUpdate: '2024-10-15'
+                },
+                {
+                    id: 'complaint2',
+                    title: 'Air Conditioning Not Working',
+                    description: 'The AC unit in my apartment has stopped working completely. It\'s not responding to the remote and there\'s no airflow. With the current weather, this is making the apartment very uncomfortable.',
+                    category: 'hvac',
+                    priority: 'high',
+                    status: 'in-progress',
+                    tenantName: 'Michael Davis',
+                    tenantUnit: 'B1',
+                    dateReported: '2024-10-12',
+                    lastUpdate: '2024-10-14'
+                },
+                {
+                    id: 'complaint3',
+                    title: 'Noise Disturbance from Upstairs',
+                    description: 'There has been consistent loud music and stomping from the unit above mine, especially during evening hours. This is disturbing my sleep and work-from-home schedule.',
+                    category: 'noise',
+                    priority: 'medium',
+                    status: 'resolved',
+                    tenantName: 'Emma Wilson',
+                    tenantUnit: 'C1',
+                    dateReported: '2024-10-08',
+                    lastUpdate: '2024-10-13'
+                },
+                {
+                    id: 'complaint4',
+                    title: 'Elevator Out of Service',
+                    description: 'The main elevator has been out of service for 3 days now. This is especially difficult for elderly residents and those with mobility issues.',
+                    category: 'maintenance',
+                    priority: 'high',
+                    status: 'pending',
+                    tenantName: 'Robert Brown',
+                    tenantUnit: 'D3',
+                    dateReported: '2024-10-14',
+                    lastUpdate: '2024-10-14'
+                },
+                {
+                    id: 'complaint5',
+                    title: 'Flickering Lights in Hallway',
+                    description: 'The hallway lights on the 3rd floor have been flickering intermittently. Sometimes they go completely dark, making it unsafe to navigate at night.',
+                    category: 'electrical',
+                    priority: 'medium',
+                    status: 'pending',
+                    tenantName: 'Lisa Garcia',
+                    tenantUnit: 'C2',
+                    dateReported: '2024-10-13',
+                    lastUpdate: '2024-10-13'
+                },
+                {
+                    id: 'complaint6',
+                    title: 'Broken Window Latch',
+                    description: 'The window latch in my bedroom is broken and the window won\'t stay closed properly. This is a security concern and also affects the room temperature.',
+                    category: 'maintenance',
+                    priority: 'low',
+                    status: 'resolved',
+                    tenantName: 'David Miller',
+                    tenantUnit: 'A1',
+                    dateReported: '2024-10-05',
+                    lastUpdate: '2024-10-11'
+                }
+            ];
+
+            // Get property name (mock or from storage)
+            document.getElementById('propertyName').textContent = 'Hillview Apartment';
+
+            filteredComplaints = [...allComplaints];
+            renderComplaints();
+        }
+
+        function renderComplaints() {
+            const grid = document.getElementById('complaintsGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filteredComplaints.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            grid.innerHTML = filteredComplaints.map(complaint => `
+                <div class="complaint-card ${complaint.status}">
+                    <div class="complaint-header">
+                        <div>
+                            <h3 class="complaint-title">${complaint.title}</h3>
+                            <div class="complaint-meta">
+                                <span><strong>From:</strong> ${complaint.tenantName} (${complaint.tenantUnit})</span>
+                                <span><strong>Reported:</strong> ${formatDate(complaint.dateReported)}</span>
+                                <span><strong>Category:</strong> ${capitalizeFirst(complaint.category)}</span>
+                                <span><strong>Priority:</strong> ${capitalizeFirst(complaint.priority)}</span>
+                            </div>
+                        </div>
+                        <span class="status-badge status-${complaint.status}">${complaint.status.replace('-', ' ')}</span>
+                    </div>
+                    
+                    <p class="complaint-description">${complaint.description}</p>
+                    
+                    <div class="complaint-actions">
+                        ${complaint.status === 'pending' ? `
+                            <button class="action-btn btn-primary" onclick="updateComplaintStatus('${complaint.id}', 'in-progress')">
+                                Start Working
+                            </button>
+                            <button class="action-btn btn-danger" onclick="updateComplaintStatus('${complaint.id}', 'rejected')">
+                                Reject
+                            </button>
+                        ` : complaint.status === 'in-progress' ? `
+                            <button class="action-btn btn-primary" onclick="updateComplaintStatus('${complaint.id}', 'resolved')">
+                                Mark Resolved
+                            </button>
+                            <button class="action-btn btn-secondary" onclick="updateComplaintStatus('${complaint.id}', 'pending')">
+                                Back to Pending
+                            </button>
+                        ` : `
+                            <button class="action-btn btn-secondary" onclick="viewComplaintDetails('${complaint.id}')">
+                                View Details
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterComplaints() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+
+            filteredComplaints = allComplaints.filter(complaint => {
+                const statusMatch = statusFilter === 'all' || complaint.status === statusFilter;
+                const priorityMatch = priorityFilter === 'all' || complaint.priority === priorityFilter;
+                const categoryMatch = categoryFilter === 'all' || complaint.category === categoryFilter;
+
+                return statusMatch && priorityMatch && categoryMatch;
+            });
+
+            renderComplaints();
+        }
+
+        function updateComplaintStatus(complaintId, newStatus) {
+            const complaint = allComplaints.find(c => c.id === complaintId);
+            if (complaint) {
+                complaint.status = newStatus;
+                complaint.lastUpdate = new Date().toISOString().split('T')[0];
+                filterComplaints(); // Re-render with current filters
+                showNotification(`Complaint status updated to ${newStatus.replace('-', ' ')}`, 'success');
+            }
+        }
+
+        function viewComplaintDetails(complaintId) {
+            const complaint = allComplaints.find(c => c.id === complaintId);
+            if (complaint) {
+                showNotification(`Viewing details for: ${complaint.title}`, 'info');
+                // Here you would typically open a modal or navigate to a detail page
+            }
+        }
+
+        function navigateToBookings() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const propertyId = urlParams.get('property');
+            window.location.href = `bookings.html?property=${propertyId}`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        async function logout() {
+            await AuthManager.signOut();
+        }
+
+        // Event listeners
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        });
+
+        function navigateToTenants() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const propertyId = urlParams.get('property') || localStorage.getItem('selectedPropertyId');
+            if (propertyId) {
+                window.location.href = `tenant-management.html?id=${propertyId}`;
+            } else {
+                window.location.href = 'tenant-management.html';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'info' ? '#3b82f6' : type === 'error' ? '#ef4444' : '#10b981'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                font-weight: 500;
+                max-width: 400px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
