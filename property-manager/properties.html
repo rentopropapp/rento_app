@@ -15,6 +15,7 @@
             min-height: 60vh;
             text-align: center;
             padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(8, 150, 126, 0.05) 0%, rgba(8, 150, 126, 0.02) 100%);
         }
 
         .welcome-title {
@@ -536,7 +537,7 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container nav-content">
-            <a href="properties.html"><img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo"></a>
+            <a href="#" id="logoLink"><img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo"></a>
             
             <ul class="nav-links" id="navLinks" style="display: none;">
                 <li><a href="properties.html" class="active">Properties</a></li>
@@ -965,10 +966,16 @@
                 if (properties.length === 0) {
                     document.getElementById('welcomeState').style.display = 'flex';
                     document.getElementById('propertiesState').style.display = 'none';
+                    // Logo does nothing when no properties
+                    document.getElementById('logoLink').style.cursor = 'default';
+                    document.getElementById('logoLink').onclick = (e) => e.preventDefault();
                 } else {
                     document.getElementById('welcomeState').style.display = 'none';
                     document.getElementById('propertiesState').style.display = 'block';
                     displayProperties(properties);
+                    // Logo goes to properties page when properties exist
+                    document.getElementById('logoLink').style.cursor = 'pointer';
+                    document.getElementById('logoLink').href = 'properties.html';
                 }
 
             } catch (error) {
