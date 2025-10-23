@@ -11,7 +11,7 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container nav-content">
-            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            <a href="home.html"><img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo"></a>
             
             <ul class="nav-links">
                 <li><a href="dashboard.html">Dashboard</a></li>
@@ -460,12 +460,26 @@
 
             if (!selectedProperty) return;
 
+            const viewingDate = document.getElementById('viewingDate').value;
+            const viewingTime = document.getElementById('viewingTime').value;
+            
+            if (!viewingDate || !viewingTime) {
+                showNotification('Please select both date and time for viewing.', 'error');
+                return;
+            }
+
             const bookingData = {
                 tenant_id: currentUser.id,
                 property_id: selectedProperty.property_id,
-                viewing_date: document.getElementById('viewingDate').value + 'T' + document.getElementById('viewingTime').value,
+                viewing_date: viewingDate + 'T' + viewingTime + ':00.000Z',
                 status: 'pending',
-                notes: document.getElementById('viewingNotes').value
+                notes: document.getElementById('viewingNotes').value || '',
+                tenant_name: currentUser.name,
+                tenant_email: currentUser.email,
+                tenant_phone: currentUser.phone_number || '',
+                property_name: selectedProperty.property_name,
+                property_location: selectedProperty.location,
+                created_at: new Date().toISOString()
             };
 
             const button = e.target.querySelector('button[type="submit"]');
@@ -477,9 +491,33 @@
                 buttonText.classList.add('hidden');
                 loading.classList.remove('hidden');
 
-                await DatabaseManager.createBooking(bookingData);
+                // Try to create booking in database
+                let bookingCreated = false;
+                try {
+                    await DatabaseManager.createBooking(bookingData);
+                    bookingCreated = true;
+                } catch (dbError) {
+                    console.log('Database booking failed, storing locally:', dbError);
+                    // Store booking locally for demo purposes
+                    const localBookings = JSON.parse(localStorage.getItem('tenantBookings') || '[]');
+                    localBookings.push({
+                        ...bookingData,
+                        booking_id: 'local_' + Date.now(),
+                        created_at: new Date().toISOString()
+                    });
+                    localStorage.setItem('tenantBookings', JSON.stringify(localBookings));
+                }
                 
-                showNotification('Viewing scheduled successfully! You will receive a confirmation soon.', 'success');
+                // Also store in manager/broker bookings for them to see
+                const managerBookings = JSON.parse(localStorage.getItem('managerBookings') || '[]');
+                managerBookings.push({
+                    ...bookingData,
+                    booking_id: bookingCreated ? 'db_' + Date.now() : 'local_' + Date.now(),
+                    created_at: new Date().toISOString()
+                });
+                localStorage.setItem('managerBookings', JSON.stringify(managerBookings));
+                
+                showNotification('Viewing scheduled successfully! The property manager will contact you soon.', 'success');
                 closeBookingModal();
                 e.target.reset();
 
@@ -585,7 +623,9 @@
                 price_range_min: parseFloat(document.getElementById('requestMinPrice').value) || 0,
                 price_range_max: parseFloat(document.getElementById('requestMaxPrice').value) || null,
                 additional_requirements: document.getElementById('requestRequirements').value,
-                tenant_id: currentUser?.id || null
+                tenant_id: currentUser?.id || null,
+                created_at: new Date().toISOString(),
+                status: 'new'
             };
 
             const button = e.target.querySelector('button[type="submit"]');
@@ -597,7 +637,23 @@
                 buttonText.classList.add('hidden');
                 loading.classList.remove('hidden');
 
-                await DatabaseManager.createLead(formData);
+                // Try to create lead in database
+                let leadCreated = false;
+                try {
+                    await DatabaseManager.createLead(formData);
+                    leadCreated = true;
+                } catch (dbError) {
+                    console.log('Database lead creation failed, storing locally:', dbError);
+                }
+                
+                // Also store in broker leads for them to see
+                const brokerLeads = JSON.parse(localStorage.getItem('brokerLeads') || '[]');
+                brokerLeads.push({
+                    ...formData,
+                    lead_id: leadCreated ? 'db_' + Date.now() : 'local_' + Date.now(),
+                    created_at: new Date().toISOString()
+                });
+                localStorage.setItem('brokerLeads', JSON.stringify(brokerLeads));
                 
                 showNotification('Your search request has been submitted successfully! Brokers will contact you soon.', 'success');
                 closeSearchRequestModal();

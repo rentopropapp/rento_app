@@ -368,7 +368,7 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container nav-content">
-            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            <a href="home.html"><img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo"></a>
             
             <div class="user-menu">
                 <div style="background: var(--primary-color); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="toggleDropdown()" id="userInitials">PM</div>
@@ -528,8 +528,24 @@
             const dashLink = document.getElementById('dashboardNav');
             if (dashLink) dashLink.href = `property-dashboard.html?id=${propertyId}`;
 
-            // Load mock bookings data for the specific property
-            allBookings = [
+            // Load bookings from localStorage (from tenant submissions) and mock data
+            const storedBookings = JSON.parse(localStorage.getItem('managerBookings') || '[]');
+            const tenantBookings = storedBookings.map(booking => ({
+                id: booking.booking_id || 'booking_' + Date.now(),
+                visitorName: booking.tenant_name || 'Unknown Tenant',
+                email: booking.tenant_email || 'No email provided',
+                phone: booking.tenant_phone || 'No phone provided',
+                viewingDate: booking.viewing_date ? new Date(booking.viewing_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                viewingTime: booking.viewing_date ? new Date(booking.viewing_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBD',
+                status: booking.status || 'pending',
+                unitInterest: booking.property_name || 'Property viewing',
+                notes: booking.notes || 'Viewing request from tenant',
+                createdDate: booking.created_at ? new Date(booking.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                source: 'tenant_submission'
+            }));
+            
+            // Combine with mock bookings data
+            const mockBookings = [
                 {
                     id: 'booking1',
                     visitorName: 'Sarah Williams',
@@ -603,6 +619,9 @@
                     createdDate: '2024-10-18'
                 }
             ];
+            
+            // Combine tenant bookings with mock bookings
+            allBookings = [...tenantBookings, ...mockBookings];
 
             // Get property name (mock or from storage)
             document.getElementById('propertyName').textContent = 'Hillview Apartment';

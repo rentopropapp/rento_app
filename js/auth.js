@@ -594,6 +594,28 @@ class DatabaseManager {
         }
     }
 
+    static async updateComplaint(complaintId, updateData) {
+        try {
+            const { data, error } = await supabase
+                .from('complaints')
+                .update({
+                    ...updateData,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('complaint_id', complaintId)
+                .select()
+                .single();
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     static async getComplaints(filters = {}) {
         try {
             let query = supabase
@@ -612,6 +634,9 @@ class DatabaseManager {
             if (filters.tenant_id) {
                 query = query.eq('tenant_id', filters.tenant_id);
             }
+            if (filters.status) {
+                query = query.eq('status', filters.status);
+            }
 
             const { data, error } = await query.order('created_at', { ascending: false });
 
@@ -621,6 +646,89 @@ class DatabaseManager {
 
             return data;
 
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Notice/Message Management Functions
+    static async createNotice(noticeData) {
+        try {
+            const { data, error } = await supabase
+                .from('notices')
+                .insert([{
+                    ...noticeData,
+                    created_at: new Date().toISOString()
+                }])
+                .select()
+                .single();
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async getNotices(filters = {}) {
+        try {
+            let query = supabase
+                .from('notices')
+                .select(`
+                    *,
+                    properties (property_name, location),
+                    from_user:from_user_id (name, user_role),
+                    to_user:to_user_id (name, user_role),
+                    tenants!tenant_id (
+                        users (name)
+                    )
+                `);
+
+            if (filters.property_id) {
+                query = query.eq('property_id', filters.property_id);
+            }
+            if (filters.tenant_id) {
+                query = query.eq('tenant_id', filters.tenant_id);
+            }
+            if (filters.to_user_id) {
+                query = query.eq('to_user_id', filters.to_user_id);
+            }
+            if (filters.from_user_id) {
+                query = query.eq('from_user_id', filters.from_user_id);
+            }
+            if (filters.is_read !== undefined) {
+                query = query.eq('is_read', filters.is_read);
+            }
+
+            const { data, error } = await query.order('created_at', { ascending: false });
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async markNoticeAsRead(noticeId) {
+        try {
+            const { data, error } = await supabase
+                .from('notices')
+                .update({ is_read: true })
+                .eq('notice_id', noticeId)
+                .select()
+                .single();
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
         } catch (error) {
             throw error;
         }
@@ -648,15 +756,46 @@ class DatabaseManager {
         }
     }
 
-    static async getLeads() {
+    static async updateLead(leadId, updateData) {
         try {
             const { data, error } = await supabase
                 .from('leads')
+                .update(updateData)
+                .eq('lead_id', leadId)
+                .select()
+                .single();
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async getLeads(filters = {}) {
+        try {
+            let query = supabase
+                .from('leads')
                 .select(`
                     *,
-                    users:tenant_id (name, email, phone_number)
-                `)
-                .order('created_at', { ascending: false });
+                    users:tenant_id (name, email, phone_number),
+                    assigned_broker:assigned_broker_id (name, email, phone_number)
+                `);
+
+            if (filters.status) {
+                query = query.eq('status', filters.status);
+            }
+            if (filters.assigned_broker_id) {
+                query = query.eq('assigned_broker_id', filters.assigned_broker_id);
+            }
+            if (filters.priority) {
+                query = query.eq('priority', filters.priority);
+            }
+
+            const { data, error } = await query.order('created_at', { ascending: false });
 
             if (error) {
                 throw new Error(error.message);
@@ -774,12 +913,102 @@ class DatabaseManager {
         }
     }
 
-    static async createNotice(noticeData) {
+    // Property Rating Functions
+    static async createPropertyRating(ratingData) {
         try {
             const { data, error } = await supabase
-                .from('notices')
+                .from('property_ratings')
+                .upsert([{
+                    ...ratingData,
+                    created_at: new Date().toISOString()
+                }], {
+                    onConflict: 'property_id,user_id'
+                })
+                .select()
+                .single();
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            // Update property owner's average rating
+            await this.updateOwnerRating(ratingData.property_id);
+
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async getPropertyRatings(propertyId) {
+        try {
+            const { data, error } = await supabase
+                .from('property_ratings')
+                .select(`
+                    *,
+                    users (name, profile_photo_url)
+                `)
+                .eq('property_id', propertyId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async updateOwnerRating(propertyId) {
+        try {
+            // Get property owner
+            const { data: property, error: propertyError } = await supabase
+                .from('properties')
+                .select('owner_id')
+                .eq('property_id', propertyId)
+                .single();
+
+            if (propertyError || !property) {
+                throw new Error('Property not found');
+            }
+
+            // Calculate average rating for all properties owned by this user
+            const { data: avgRating, error: avgError } = await supabase
+                .rpc('calculate_owner_average_rating', {
+                    owner_id: property.owner_id
+                });
+
+            if (avgError) {
+                console.error('Error calculating average rating:', avgError);
+                return;
+            }
+
+            // Update user's rating
+            const { error: updateError } = await supabase
+                .from('users')
+                .update({ 
+                    rating: parseFloat(avgRating || 5.0).toFixed(2),
+                    updated_at: new Date().toISOString()
+                })
+                .eq('user_id', property.owner_id);
+
+            if (updateError) {
+                console.error('Error updating user rating:', updateError);
+            }
+        } catch (error) {
+            console.error('Error updating owner rating:', error);
+        }
+    }
+
+    // Tenant Management Functions
+    static async createTenant(tenantData) {
+        try {
+            const { data, error } = await supabase
+                .from('tenants')
                 .insert([{
-                    ...noticeData,
+                    ...tenantData,
                     created_at: new Date().toISOString()
                 }])
                 .select()
@@ -790,7 +1019,94 @@ class DatabaseManager {
             }
 
             return data;
+        } catch (error) {
+            throw error;
+        }
+    }
 
+    static async getTenants(filters = {}) {
+        try {
+            let query = supabase
+                .from('tenants')
+                .select(`
+                    *,
+                    properties (property_name, location),
+                    users (name, email, phone_number, profile_photo_url)
+                `);
+
+            if (filters.property_id) {
+                query = query.eq('property_id', filters.property_id);
+            }
+            if (filters.user_id) {
+                query = query.eq('user_id', filters.user_id);
+            }
+            if (filters.status) {
+                query = query.eq('status', filters.status);
+            }
+
+            const { data, error } = await query.order('created_at', { ascending: false });
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Tenant Agreement Functions
+    static async createTenantAgreement(agreementData) {
+        try {
+            const { data, error } = await supabase
+                .from('tenant_agreements')
+                .insert([{
+                    ...agreementData,
+                    created_at: new Date().toISOString()
+                }])
+                .select()
+                .single();
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async getTenantAgreements(filters = {}) {
+        try {
+            let query = supabase
+                .from('tenant_agreements')
+                .select(`
+                    *,
+                    tenants (
+                        users (name, email, phone_number)
+                    ),
+                    properties (property_name, location)
+                `);
+
+            if (filters.tenant_id) {
+                query = query.eq('tenant_id', filters.tenant_id);
+            }
+            if (filters.property_id) {
+                query = query.eq('property_id', filters.property_id);
+            }
+            if (filters.status) {
+                query = query.eq('status', filters.status);
+            }
+
+            const { data, error } = await query.order('created_at', { ascending: false });
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
         } catch (error) {
             throw error;
         }

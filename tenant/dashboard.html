@@ -11,7 +11,7 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container nav-content">
-            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            <a href="home.html"><img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo"></a>
             
             <ul class="nav-links">
                 <li><a href="dashboard.html" class="active">Dashboard</a></li>
@@ -206,9 +206,21 @@
             }
         });
 
-        function loadCurrentProperties() {
-            // Always show mock data for demonstration purposes
-            loadMockProperties();
+        async function loadCurrentProperties() {
+            try {
+                // Try to load from database first
+                const tenantData = await DatabaseManager.getTenants({ user_id: currentUser.id, status: 'active' });
+                
+                if (tenantData && tenantData.length > 0) {
+                    displayRealProperties(tenantData);
+                } else {
+                    // Fallback to mock data for demonstration
+                    loadMockPropertiesWithRatings();
+                }
+            } catch (error) {
+                console.log('Database load failed, using mock data:', error);
+                loadMockPropertiesWithRatings();
+            }
         }
 
         function loadMockProperties() {
@@ -293,6 +305,19 @@
                             <div><strong>Lease End:</strong> ${formatDate(property.lease_end_date)}</div>
                         </div>
                         
+                        <!-- Star Rating Section -->
+                        <div style="margin: 16px 0; padding: 12px; background: rgba(8, 150, 126, 0.1); border-radius: 8px;">
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px;">Rate this property</div>
+                            <div class="star-rating" data-property-id="${property.property_id}" data-current-rating="${property.user_rating || 0}">
+                                ${[1, 2, 3, 4, 5].map(star => `
+                                    <span class="star" data-star="${star}" onclick="rateProperty('${property.property_id}', ${star})" style="cursor: pointer; font-size: 20px; color: ${star <= (property.user_rating || 0) ? '#FFD700' : '#E5E7EB'}; margin-right: 4px;">★</span>
+                                `).join('')}
+                                <span style="margin-left: 8px; font-size: 12px; color: var(--text-gray);">
+                                    ${property.user_rating ? `Your rating: ${property.user_rating}/5` : 'Click to rate'}
+                                </span>
+                            </div>
+                        </div>
+                        
                         <div style="display: flex; gap: 12px; margin-top: 16px;">
                             <div style="flex: 1; text-align: center; padding: 8px; background: ${property.complaints > 0 ? 'rgba(220, 38, 127, 0.1)' : 'rgba(8, 150, 126, 0.1)'}; border-radius: 6px;">
                                 <div style="font-size: 12px; color: var(--text-gray);">Complaints</div>
@@ -316,9 +341,24 @@
             `).join('');
         }
 
-        function loadScheduledViewings() {
-            // Always show mock data for demonstration purposes
-            loadMockScheduledViewings();
+        async function loadScheduledViewings() {
+            try {
+                // Try to load from database first
+                const bookings = await DatabaseManager.getBookings({ 
+                    tenant_id: currentUser.id, 
+                    status: 'confirmed' 
+                });
+                
+                if (bookings && bookings.length > 0) {
+                    displayRealBookings(bookings);
+                } else {
+                    // Fallback to mock data for demonstration
+                    loadMockScheduledViewingsWithRatings();
+                }
+            } catch (error) {
+                console.log('Database bookings load failed, using mock data:', error);
+                loadMockScheduledViewingsWithRatings();
+            }
         }
 
         function loadMockScheduledViewings() {
@@ -381,6 +421,19 @@
                             <div style="font-size: 14px; font-weight: 600; color: #3b82f6; margin-bottom: 4px;">📅 Viewing Scheduled</div>
                             <div style="font-size: 14px; color: var(--text-dark);">${formatDate(viewing.viewing_date)} at ${new Date(viewing.viewing_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>
                         </div>
+                        <!-- Star Rating for Scheduled Properties -->
+                        <div style="margin: 16px 0; padding: 12px; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px;">Rate this property</div>
+                            <div class="star-rating" data-property-id="${viewing.property_id}" data-current-rating="${viewing.user_rating || 0}">
+                                ${[1, 2, 3, 4, 5].map(star => `
+                                    <span class="star" data-star="${star}" onclick="rateProperty('${viewing.property_id}', ${star})" style="cursor: pointer; font-size: 18px; color: ${star <= (viewing.user_rating || 0) ? '#FFD700' : '#E5E7EB'}; margin-right: 4px;">★</span>
+                                `).join('')}
+                                <span style="margin-left: 8px; font-size: 12px; color: var(--text-gray);">
+                                    ${viewing.user_rating ? `Your rating: ${viewing.user_rating}/5` : 'Click to rate'}
+                                </span>
+                            </div>
+                        </div>
+                        
                         <div class="property-actions">
                             <button class="btn-primary" onclick="viewPropertyDetails('${viewing.property_id}')">
                                 View Details
@@ -490,6 +543,241 @@
                 document.getElementById('dropdownMenu').classList.remove('show');
             }
         });
+
+        // Enhanced star rating functionality with database integration
+        async function rateProperty(propertyId, rating) {
+            try {
+                // Update star display immediately for better UX
+                const starContainer = document.querySelector(`.star-rating[data-property-id="${propertyId}"]`);
+                const stars = starContainer.querySelectorAll('.star');
+                stars.forEach((star, index) => {
+                    star.style.color = index < rating ? '#FFD700' : '#E5E7EB';
+                });
+                
+                // Update the rating text
+                const ratingText = starContainer.querySelector('span:last-child');
+                ratingText.textContent = `Your rating: ${rating}/5`;
+                
+                // Store in database using the enhanced rating system
+                try {
+                    await DatabaseManager.createPropertyRating({
+                        property_id: propertyId,
+                        user_id: currentUser.id,
+                        rating: rating,
+                        review: `Rated ${rating} stars from tenant dashboard`
+                    });
+                    
+                    showNotification(`Property rated ${rating} star${rating !== 1 ? 's' : ''}! Owner rating updated.`, 'success');
+                } catch (dbError) {
+                    console.log('Database rating failed, storing locally:', dbError);
+                    
+                    // Fallback to localStorage for demo purposes
+                    const propertyRatings = JSON.parse(localStorage.getItem('propertyRatings') || '{}');
+                    propertyRatings[propertyId] = rating;
+                    localStorage.setItem('propertyRatings', JSON.stringify(propertyRatings));
+                    
+                    await updateOwnerRating(propertyId, rating);
+                    
+                    showNotification(`Property rated ${rating} star${rating !== 1 ? 's' : ''}! Thank you for your feedback.`, 'success');
+                }
+                
+            } catch (error) {
+                console.error('Error rating property:', error);
+                showNotification('Error submitting rating. Please try again.', 'error');
+            }
+        }
+        
+        async function updateOwnerRating(propertyId, rating) {
+            try {
+                // Get property details to find owner
+                const property = await DatabaseManager.getPropertyById(propertyId);
+                if (property && property.owner_id) {
+                    // Calculate new average rating for owner
+                    const ownerRatings = JSON.parse(localStorage.getItem('ownerRatings') || '{}');
+                    if (!ownerRatings[property.owner_id]) {
+                        ownerRatings[property.owner_id] = { ratings: [], average: 0 };
+                    }
+                    
+                    ownerRatings[property.owner_id].ratings.push(rating);
+                    const ratings = ownerRatings[property.owner_id].ratings;
+                    ownerRatings[property.owner_id].average = ratings.reduce((a, b) => a + b) / ratings.length;
+                    
+                    localStorage.setItem('ownerRatings', JSON.stringify(ownerRatings));
+                    
+                    // In a real implementation, update the database
+                    // await AuthManager.updateProfile({ rating: ownerRatings[property.owner_id].average });
+                }
+            } catch (error) {
+                console.error('Error updating owner rating:', error);
+            }
+        }
+        
+        // Enhanced rating loading with database integration
+        async function loadExistingRatings() {
+            try {
+                // Try to load ratings from database
+                const properties = document.querySelectorAll('.star-rating[data-property-id]');
+                for (const starContainer of properties) {
+                    const propertyId = starContainer.getAttribute('data-property-id');
+                    try {
+                        const ratings = await DatabaseManager.getPropertyRatings(propertyId);
+                        const userRating = ratings.find(r => r.user_id === currentUser.id);
+                        
+                        if (userRating) {
+                            const rating = userRating.rating;
+                            const stars = starContainer.querySelectorAll('.star');
+                            stars.forEach((star, index) => {
+                                star.style.color = index < rating ? '#FFD700' : '#E5E7EB';
+                            });
+                            const ratingText = starContainer.querySelector('span:last-child');
+                            ratingText.textContent = `Your rating: ${rating}/5`;
+                        }
+                    } catch (dbError) {
+                        console.log(`Database rating load failed for property ${propertyId}, checking localStorage`);
+                    }
+                }
+            } catch (error) {
+                console.log('Database ratings load failed, using localStorage:', error);
+            }
+            
+            // Fallback to localStorage for any missing ratings
+            const propertyRatings = JSON.parse(localStorage.getItem('propertyRatings') || '{}');
+            Object.keys(propertyRatings).forEach(propertyId => {
+                const rating = propertyRatings[propertyId];
+                const starContainer = document.querySelector(`.star-rating[data-property-id="${propertyId}"]`);
+                if (starContainer) {
+                    const stars = starContainer.querySelectorAll('.star');
+                    // Only update if not already set from database
+                    if (stars[0].style.color !== 'rgb(255, 215, 0)') {
+                        stars.forEach((star, index) => {
+                            star.style.color = index < rating ? '#FFD700' : '#E5E7EB';
+                        });
+                        const ratingText = starContainer.querySelector('span:last-child');
+                        ratingText.textContent = `Your rating: ${rating}/5`;
+                    }
+                }
+            });
+        }
+        
+        // Call loadExistingRatings after properties are loaded
+        function loadMockPropertiesWithRatings() {
+            loadMockProperties();
+            setTimeout(loadExistingRatings, 100); // Small delay to ensure DOM is updated
+        }
+        
+        function loadMockScheduledViewingsWithRatings() {
+            loadMockScheduledViewings();
+            setTimeout(loadExistingRatings, 100);
+        }
+        
+        // New function to display real properties from database
+        function displayRealProperties(tenantData) {
+            const container = document.getElementById('currentProperties');
+            container.innerHTML = tenantData.map(tenant => {
+                const property = tenant.properties;
+                const propertyId = property.property_id;
+                
+                return `
+                    <div class="property-card" onclick="openPropertyManagement('${propertyId}')" style="cursor: pointer;">
+                        <div class="property-image" style="background-image: url('${property.photos_urls?.[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400'}'); height: 200px; background-size: cover; background-position: center; position: relative;">
+                            <div style="position: absolute; top: 12px; right: 12px; background: var(--primary-color); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                                RENTING
+                            </div>
+                        </div>
+                        <div class="property-content">
+                            <div class="property-title">${property.property_name}</div>
+                            <div class="property-location">📍 ${property.location}</div>
+                            <div class="property-price">${formatCurrency(tenant.monthly_rent)}/month</div>
+                            
+                            <div style="margin: 12px 0; font-size: 14px; color: var(--text-gray);">
+                                <div><strong>Lease Start:</strong> ${formatDate(tenant.lease_start_date)}</div>
+                                <div><strong>Lease End:</strong> ${formatDate(tenant.lease_end_date)}</div>
+                            </div>
+                            
+                            <!-- Star Rating Section -->
+                            <div style="margin: 16px 0; padding: 12px; background: rgba(8, 150, 126, 0.1); border-radius: 8px;">
+                                <div style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px;">Rate this property</div>
+                                <div class="star-rating" data-property-id="${propertyId}" data-current-rating="0">
+                                    ${[1, 2, 3, 4, 5].map(star => `
+                                        <span class="star" data-star="${star}" onclick="rateProperty('${propertyId}', ${star})" style="cursor: pointer; font-size: 20px; color: #E5E7EB; margin-right: 4px;">★</span>
+                                    `).join('')}
+                                    <span style="margin-left: 8px; font-size: 12px; color: var(--text-gray);">
+                                        Click to rate
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                                <div style="flex: 1; text-align: center; padding: 8px; background: rgba(8, 150, 126, 0.1); border-radius: 6px;">
+                                    <div style="font-size: 12px; color: var(--text-gray);">Complaints</div>
+                                    <div style="font-weight: 600; color: var(--primary-color);">Manage (0)</div>
+                                </div>
+                                <div style="flex: 1; text-align: center; padding: 8px; background: rgba(8, 150, 126, 0.1); border-radius: 6px;">
+                                    <div style="font-size: 12px; color: var(--text-gray);">Notices</div>
+                                    <div style="font-weight: 600; color: var(--primary-color);">View (0)</div>
+                                </div>
+                                <div style="flex: 1; text-align: center; padding: 8px; background: rgba(8, 150, 126, 0.1); border-radius: 6px;">
+                                    <div style="font-size: 12px; color: var(--text-gray);">Status</div>
+                                    <div style="font-weight: 600; color: var(--primary-color);">Active</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Load existing ratings after DOM update
+            setTimeout(loadExistingRatings, 100);
+        }
+        
+        // New function to display real bookings from database
+        function displayRealBookings(bookings) {
+            const container = document.getElementById('scheduledViewings');
+            container.innerHTML = bookings.map(booking => {
+                return `
+                    <div class="property-card">
+                        <div class="property-image" style="background-image: url('${booking.properties?.photos_urls?.[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400'}'); height: 160px; background-size: cover; background-position: center; position: relative;">
+                            <div style="position: absolute; top: 12px; right: 12px; background: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                                VIEWING SCHEDULED
+                            </div>
+                        </div>
+                        <div class="property-content">
+                            <div class="property-title">${booking.property_name || booking.properties?.property_name}</div>
+                            <div class="property-location">📍 ${booking.property_location || booking.properties?.location}</div>
+                            <div style="margin: 12px 0; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 6px;">
+                                <div style="font-size: 14px; font-weight: 600; color: #3b82f6; margin-bottom: 4px;">📅 Viewing Scheduled</div>
+                                <div style="font-size: 14px; color: var(--text-dark);">${formatDate(booking.viewing_date)} at ${new Date(booking.viewing_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>
+                            </div>
+                            
+                            <!-- Star Rating for Scheduled Properties -->
+                            <div style="margin: 16px 0; padding: 12px; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+                                <div style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px;">Rate this property</div>
+                                <div class="star-rating" data-property-id="${booking.property_id}" data-current-rating="0">
+                                    ${[1, 2, 3, 4, 5].map(star => `
+                                        <span class="star" data-star="${star}" onclick="rateProperty('${booking.property_id}', ${star})" style="cursor: pointer; font-size: 18px; color: #E5E7EB; margin-right: 4px;">★</span>
+                                    `).join('')}
+                                    <span style="margin-left: 8px; font-size: 12px; color: var(--text-gray);">
+                                        Click to rate
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="property-actions">
+                                <button class="btn-primary" onclick="viewPropertyDetails('${booking.property_id}')">
+                                    View Details
+                                </button>
+                                <button class="btn-secondary" onclick="cancelViewing('${booking.booking_id}')">
+                                    Cancel Viewing
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Load existing ratings after DOM update
+            setTimeout(loadExistingRatings, 100);
+        }
 
         // Close modal when clicking outside
         document.getElementById('searchRequestModal').addEventListener('click', function(e) {

@@ -236,7 +236,7 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container nav-content">
-            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            <a href="leads.html"><img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo"></a>
             
             <ul class="nav-links">
                 <li><a href="listings.html">Listings</a></li>
@@ -372,7 +372,24 @@
         }
 
         function getSampleLeads() {
-            return [
+            // First, get leads from localStorage (from tenant submissions)
+            const storedLeads = JSON.parse(localStorage.getItem('brokerLeads') || '[]');
+            const tenantLeads = storedLeads.map(lead => ({
+                lead_id: lead.lead_id || 'lead_' + Date.now(),
+                tenant_name: lead.tenant_name || 'Unknown Tenant',
+                email: lead.email || 'No email provided',
+                phone_number: lead.phone_number || 'No phone provided',
+                property_type_required: lead.property_type_required || 'apartment',
+                location_preferred: lead.location_preferred || 'Location not specified',
+                price_range_min: lead.price_range_min || 0,
+                price_range_max: lead.price_range_max || 1000000,
+                additional_requirements: lead.additional_requirements || 'No additional requirements specified',
+                created_at: lead.created_at || new Date().toISOString(),
+                status: lead.status || 'new'
+            }));
+            
+            // Combine with sample leads
+            const sampleLeads = [
                 {
                     lead_id: '1',
                     tenant_name: 'Maria Kabuye',
@@ -413,6 +430,9 @@
                     status: 'viewing'
                 }
             ];
+            
+            // Return combined leads (tenant submissions first, then sample leads)
+            return [...tenantLeads, ...sampleLeads];
         }
 
         function displayLeads(leads) {

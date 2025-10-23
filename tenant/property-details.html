@@ -234,6 +234,115 @@
             transition: all 0.2s ease;
         }
         
+        .property-rating {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .rating-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .rating-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        .current-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+        
+        .star-rating {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .star {
+            font-size: 28px;
+            color: #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        
+        .star:hover,
+        .star.active {
+            color: #fbbf24;
+        }
+        
+        .star.filled {
+            color: #fbbf24;
+        }
+        
+        .rating-comment {
+            margin-bottom: 16px;
+        }
+        
+        .rating-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn-rate {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-rate:hover:not(:disabled) {
+            background: #0a8d73;
+            transform: translateY(-2px);
+        }
+        
+        .btn-rate:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-cancel {
+            background: #f3f4f6;
+            color: var(--text-gray);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-cancel:hover {
+            background: #e5e7eb;
+        }
+        
+        .rating-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 8px;
+            color: #059669;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
         .btn-call {
             background: #10b981;
             color: white;
@@ -350,7 +459,7 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container nav-content">
-            <img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo">
+            <a href="home.html"><img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo"></a>
             
             <ul class="nav-links">
                 <li><a href="dashboard.html">Dashboard</a></li>
@@ -455,6 +564,51 @@
                     <!-- Owner info will be populated -->
                 </div>
 
+                <!-- Property Rating Section -->
+                <div id="propertyRating" class="property-rating">
+                    <div class="rating-header">
+                        <h3 class="rating-title">Rate this Property</h3>
+                        <div id="currentRating" class="current-rating">
+                            <span id="ratingDisplay">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div id="ratingForm" style="display: none;">
+                        <div class="star-rating" id="starRating">
+                            <span class="star" data-rating="1">★</span>
+                            <span class="star" data-rating="2">★</span>
+                            <span class="star" data-rating="3">★</span>
+                            <span class="star" data-rating="4">★</span>
+                            <span class="star" data-rating="5">★</span>
+                        </div>
+                        
+                        <div class="rating-comment">
+                            <textarea id="ratingComment" class="form-textarea" rows="3" placeholder="Share your experience with this property (optional)..."></textarea>
+                        </div>
+                        
+                        <div class="rating-actions">
+                            <button id="submitRating" class="btn-rate" disabled>
+                                <span class="button-text">Submit Rating</span>
+                                <span class="loading hidden">Submitting...</span>
+                            </button>
+                            <button id="cancelRating" class="btn-cancel">Cancel</button>
+                        </div>
+                    </div>
+                    
+                    <div id="ratingStatus" style="display: none;">
+                        <div class="rating-status">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                            </svg>
+                            <span id="statusMessage">Thank you for rating this property!</span>
+                        </div>
+                    </div>
+                    
+                    <button id="showRatingForm" class="btn-rate" style="width: 100%;">
+                        Rate Property
+                    </button>
+                </div>
+
                 <!-- Availability Calendar -->
                 <div class="calendar-section">
                     <h2 class="section-title">Availability Calendar</h2>
@@ -531,6 +685,8 @@
         let currentUser = null;
         let currentProperty = null;
         let propertyId = null;
+        let currentRating = 0;
+        let userRating = null;
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', async function() {
@@ -558,6 +714,10 @@
 
                 // Load property details
                 await loadPropertyDetails();
+                
+                // Initialize rating system
+                await loadPropertyRating();
+                initializeRatingSystem();
 
             } catch (error) {
                 console.error('Error initializing property details page:', error);
@@ -926,6 +1086,218 @@
                 document.getElementById('dropdownMenu').classList.remove('show');
             }
         });
+        
+        // Property Rating System Functions
+        async function loadPropertyRating() {
+            try {
+                // Try to get user's existing rating for this property
+                const userExistingRating = await DatabaseManager.getPropertyRating(currentUser.id, propertyId);
+                userRating = userExistingRating;
+                
+                // Get average rating for this property
+                const averageRating = await DatabaseManager.getPropertyAverageRating(propertyId);
+                
+                displayRatingStatus(userRating, averageRating);
+                
+            } catch (error) {
+                console.error('Error loading property rating:', error);
+                // Show demo rating status
+                displayMockRatingStatus();
+            }
+        }
+        
+        function displayRatingStatus(userRating, averageRating) {
+            const ratingDisplay = document.getElementById('ratingDisplay');
+            const showRatingBtn = document.getElementById('showRatingForm');
+            const ratingStatus = document.getElementById('ratingStatus');
+            
+            if (userRating) {
+                // User has already rated this property
+                ratingDisplay.innerHTML = `
+                    <span>Your rating: ${generateStars(userRating.rating)} (${userRating.rating}/5)</span>
+                `;
+                showRatingBtn.style.display = 'none';
+                ratingStatus.style.display = 'block';
+                document.getElementById('statusMessage').textContent = `You rated this property ${userRating.rating} stars`;
+            } else {
+                // User hasn't rated yet
+                if (averageRating && averageRating.count > 0) {
+                    ratingDisplay.innerHTML = `
+                        <span>Average: ${generateStars(averageRating.average)} (${averageRating.average.toFixed(1)}/5 from ${averageRating.count} ${averageRating.count === 1 ? 'rating' : 'ratings'})</span>
+                    `;
+                } else {
+                    ratingDisplay.textContent = 'No ratings yet - Be the first to rate!';
+                }
+                showRatingBtn.style.display = 'block';
+                ratingStatus.style.display = 'none';
+            }
+        }
+        
+        function displayMockRatingStatus() {
+            const ratingDisplay = document.getElementById('ratingDisplay');
+            const showRatingBtn = document.getElementById('showRatingForm');
+            
+            // Mock data - assume no user rating exists
+            const mockRatings = {
+                '1': { average: 4.3, count: 12 },
+                '2': { average: 4.1, count: 8 }
+            };
+            
+            const mockData = mockRatings[propertyId];
+            if (mockData) {
+                ratingDisplay.innerHTML = `
+                    <span>Average: ${generateStars(mockData.average)} (${mockData.average}/5 from ${mockData.count} ${mockData.count === 1 ? 'rating' : 'ratings'})</span>
+                `;
+            } else {
+                ratingDisplay.textContent = 'No ratings yet - Be the first to rate!';
+            }
+            
+            showRatingBtn.style.display = 'block';
+            document.getElementById('ratingStatus').style.display = 'none';
+        }
+        
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let stars = '';
+            
+            // Full stars
+            for (let i = 0; i < fullStars; i++) {
+                stars += '★';
+            }
+            
+            // Half star
+            if (hasHalfStar) {
+                stars += '☆';
+            }
+            
+            // Empty stars
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '☆';
+            }
+            
+            return `<span style="color: #fbbf24;">${stars}</span>`;
+        }
+        
+        function initializeRatingSystem() {
+            const showRatingBtn = document.getElementById('showRatingForm');
+            const cancelRatingBtn = document.getElementById('cancelRating');
+            const submitRatingBtn = document.getElementById('submitRating');
+            const stars = document.querySelectorAll('.star');
+            const ratingForm = document.getElementById('ratingForm');
+            
+            // Show rating form
+            showRatingBtn.addEventListener('click', function() {
+                ratingForm.style.display = 'block';
+                showRatingBtn.style.display = 'none';
+            });
+            
+            // Cancel rating
+            cancelRatingBtn.addEventListener('click', function() {
+                ratingForm.style.display = 'none';
+                showRatingBtn.style.display = 'block';
+                resetRatingForm();
+            });
+            
+            // Star interaction
+            stars.forEach(star => {
+                star.addEventListener('mouseover', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    highlightStars(rating);
+                });
+                
+                star.addEventListener('click', function() {
+                    currentRating = parseInt(this.dataset.rating);
+                    highlightStars(currentRating, true);
+                    submitRatingBtn.disabled = false;
+                });
+            });
+            
+            // Reset stars on mouse leave
+            document.getElementById('starRating').addEventListener('mouseleave', function() {
+                if (currentRating > 0) {
+                    highlightStars(currentRating, true);
+                } else {
+                    resetStars();
+                }
+            });
+            
+            // Submit rating
+            submitRatingBtn.addEventListener('click', submitPropertyRating);
+        }
+        
+        function highlightStars(rating, permanent = false) {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add(permanent ? 'filled' : 'active');
+                    if (permanent) star.classList.remove('active');
+                } else {
+                    star.classList.remove('active', 'filled');
+                }
+            });
+        }
+        
+        function resetStars() {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(star => {
+                star.classList.remove('active', 'filled');
+            });
+        }
+        
+        function resetRatingForm() {
+            currentRating = 0;
+            resetStars();
+            document.getElementById('ratingComment').value = '';
+            document.getElementById('submitRating').disabled = true;
+        }
+        
+        async function submitPropertyRating() {
+            if (!currentRating || !currentProperty) return;
+            
+            const comment = document.getElementById('ratingComment').value;
+            const submitBtn = document.getElementById('submitRating');
+            const buttonText = submitBtn.querySelector('.button-text');
+            const loading = submitBtn.querySelector('.loading');
+            
+            try {
+                submitBtn.disabled = true;
+                buttonText.classList.add('hidden');
+                loading.classList.remove('hidden');
+                
+                const ratingData = {
+                    tenant_id: currentUser.id,
+                    property_id: propertyId,
+                    rating: currentRating,
+                    comment: comment || null
+                };
+                
+                await DatabaseManager.createPropertyRating(ratingData);
+                
+                showNotification('Rating submitted successfully!', 'success');
+                
+                // Update display
+                document.getElementById('ratingForm').style.display = 'none';
+                document.getElementById('ratingStatus').style.display = 'block';
+                document.getElementById('statusMessage').textContent = `You rated this property ${currentRating} stars`;
+                document.getElementById('ratingDisplay').innerHTML = `
+                    <span>Your rating: ${generateStars(currentRating)} (${currentRating}/5)</span>
+                `;
+                
+                // Mark as user has rated
+                userRating = { rating: currentRating, comment: comment };
+                
+            } catch (error) {
+                console.error('Error submitting rating:', error);
+                showNotification('Error submitting rating. Please try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                buttonText.classList.remove('hidden');
+                loading.classList.add('hidden');
+            }
+        }
     </script>
 </body>
 </html>
