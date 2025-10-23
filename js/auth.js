@@ -172,6 +172,24 @@ class AuthManager {
         }
     }
 
+    static async switchAccount() {
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            localStorage.removeItem('user');
+            window.location.href = '../auth/login.html';
+
+        } catch (error) {
+            console.error('Switch account error:', error);
+            // Even if there's an error, still redirect to login
+            localStorage.removeItem('user');
+            window.location.href = '../auth/login.html';
+        }
+    }
+
     static getCurrentUser() {
         const userData = localStorage.getItem('user');
         return userData ? JSON.parse(userData) : null;
@@ -1197,6 +1215,12 @@ function formatDate(dateString) {
         month: 'long',
         day: 'numeric'
     });
+}
+
+// Global function for switching accounts
+async function switchAccount(event) {
+    if (event) event.preventDefault();
+    await AuthManager.switchAccount();
 }
 
 // Export for use in other modules
