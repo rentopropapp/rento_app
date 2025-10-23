@@ -36,9 +36,39 @@ A comprehensive property management application combining brokerage, tenant mana
 
 ### Setup Instructions
 
-1. **Open the application**
-   - Navigate to the `rento-app` folder
-   - Open `index.html` in your web browser
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/rentopropapp/rento_app.git
+   cd rento_app
+   ```
+
+2. **Run locally**
+   - **Option 1**: Open `index.html` directly in your browser
+   - **Option 2**: Use a local server (recommended)
+     ```bash
+     # Using Python
+     python -m http.server 8000
+     # Then open: http://localhost:8000
+     
+     # Using Node.js (install http-server first: npm install -g http-server)
+     http-server -p 8000
+     # Then open: http://localhost:8000
+     
+     # Using PHP
+     php -S localhost:8000
+     # Then open: http://localhost:8000
+     ```
+   - **Option 3**: Use VS Code Live Server extension
+     - Install "Live Server" extension in VS Code
+     - Right-click `index.html` and select "Open with Live Server"
+
+3. **Quick Access Links** (when running locally)
+   - 🏠 [Home Page](http://localhost:8000/index.html)
+   - 🔐 [Login](http://localhost:8000/auth/login.html)
+   - 📝 [Sign Up](http://localhost:8000/auth/signup.html)
+   - 👤 [Tenant Dashboard](http://localhost:8000/tenant/home.html)
+   - 🏢 [Property Manager Dashboard](http://localhost:8000/property-manager/home.html)
+   - 💼 [Broker Dashboard](http://localhost:8000/broker/leads.html)
 
 2. **Database Setup**
    - The app is configured to use Supabase
