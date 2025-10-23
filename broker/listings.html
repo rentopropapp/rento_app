@@ -11,7 +11,7 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container nav-content">
-            <a href="leads.html"><img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo"></a>
+            <a href="listings.html"><img src="../assets/rento-logo-dark.svg" alt="Rento" class="nav-logo"></a>
             
             <ul class="nav-links">
                 <li><a href="listings.html" class="active">Listings</a></li>
@@ -21,10 +21,11 @@
             </ul>
             
             <div class="user-menu">
-                <img src="../assets/default-avatar.png" alt="Profile" class="user-avatar" id="userAvatar" onclick="toggleDropdown()">
+                <img src="../assets/default-avatar.png" alt="Profile" class="user-avatar" id="userAvatar" onclick="toggleDropdown()" style="display: none;">
+                <div style="background: var(--primary-color); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="toggleDropdown()" id="userInitials">JD</div>
                 <div class="dropdown-menu" id="dropdownMenu">
                     <a href="profile.html" class="dropdown-item">Profile</a>
-                    <a href="#" class="dropdown-item" onclick="openAccountSwitcher()">Switch Account</a>
+                    <a href="#" class="dropdown-item" onclick="switchAccount(event)">Switch Account</a>
                     <a href="#" class="dropdown-item logout-btn" onclick="logout()">Logout</a>
                 </div>
             </div>
@@ -313,6 +314,23 @@
 
                 // Update user avatar with profile photo or initials
                 updateUserAvatar(currentUser);
+                
+                // Update user initials or show profile photo
+                const userInitials = document.getElementById('userInitials');
+                const userAvatar = document.getElementById('userAvatar');
+                
+                if (currentUser.profile_photo_url) {
+                    // Show profile photo
+                    userAvatar.src = currentUser.profile_photo_url;
+                    userAvatar.style.display = 'block';
+                    userInitials.style.display = 'none';
+                } else if (currentUser.name) {
+                    // Show initials
+                    const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    userInitials.textContent = initials;
+                    userInitials.style.display = 'flex';
+                    userAvatar.style.display = 'none';
+                }
 
                 await loadProperties();
                 await loadScheduledViewings();
