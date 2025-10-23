@@ -99,6 +99,13 @@
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Validate role selection
+            const roleInput = document.querySelector('input[name="role"]:checked');
+            if (!roleInput) {
+                showAlert('error', 'Please select your role (Tenant, Broker, or Manager)');
+                return;
+            }
+            
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             
@@ -114,14 +121,20 @@
                 occupation: document.getElementById('occupation').value,
                 birthday: document.getElementById('birthday').value,
                 password: password,
-                role: document.querySelector('input[name="role"]:checked').value
+                role: roleInput.value
             };
+            
+            const button = document.getElementById('signupButton');
+            button.disabled = true;
+            button.textContent = 'Creating account...';
             
             try {
                 await AuthManager.signUp(formData);
             } catch (error) {
                 console.error('Signup error:', error);
-                showAlert('error', error.message);
+                showAlert('error', error.message || 'Signup failed. Please try again.');
+                button.disabled = false;
+                button.textContent = 'Create Account';
             }
         });
 

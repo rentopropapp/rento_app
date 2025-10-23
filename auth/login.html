@@ -78,15 +78,28 @@
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Validate role selection
+            const roleInput = document.querySelector('input[name="role"]:checked');
+            if (!roleInput) {
+                showAlert('error', 'Please select your role (Tenant, Broker, or Manager)');
+                return;
+            }
+            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const role = document.querySelector('input[name="role"]:checked').value;
+            const role = roleInput.value;
+            
+            const button = document.getElementById('loginButton');
+            button.disabled = true;
+            button.textContent = 'Signing in...';
             
             try {
                 await AuthManager.signIn(email, password, role);
             } catch (error) {
                 console.error('Login error:', error);
-                showAlert('error', error.message);
+                showAlert('error', error.message || 'Login failed. Please try again.');
+                button.disabled = false;
+                button.textContent = 'Sign In';
             }
         });
 
